@@ -1,5 +1,5 @@
 # Gruppo_IS_VernieriLeonardo
-## Traccia 1
+## Traccia esame
 ### Sistema di Prenotazione di Postazioni in Biblioteca Universitaria
 Si desidera sviluppare un sistema software per la gestione della prenotazione di postazioni di studio all’interno di
 una biblioteca universitaria. Il sistema dovrà consentire agli studenti di prenotare una postazione in specifiche
