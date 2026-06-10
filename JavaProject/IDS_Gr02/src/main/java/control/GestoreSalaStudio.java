@@ -7,7 +7,7 @@ import java.util.List;
 
 public class GestoreSalaStudio {
 
-    public GestoreSalaStudio(){
+    public GestoreSalaStudio() {
 
     }
 
@@ -22,25 +22,16 @@ public class GestoreSalaStudio {
         return bibliotecario.creaSalaStudio(nome, descrizione, numeroPostazioniTotali, orarioApertura, orarioChiusura, presenzaAree);
     }
 
-    public static boolean aggiungiArea(List<String> str, List<Integer> num){
-        Area a = new Area();
-        boolean bs=false;
-        boolean bn=false;
-        for(String s : str){
-            bs=false;
-            bn=true;
-            for(Integer n : num){
-                a.creaArea(s, n);
-            }
-            bs=true;
-            bn=true;
-        }
-        if(bs&&bn){
-            return true;
-        }
-        else{
+    public static boolean aggiungiArea(List<String> str, List<Integer> num) {
+        if (str.size() != num.size()) {
             return false;
         }
 
+        for (int i = 0; i < str.size(); i++) {
+            Area area = new Area();
+            area.creaArea(str.get(i), num.get(i));
+        }
+
+        return true;
     }
 }

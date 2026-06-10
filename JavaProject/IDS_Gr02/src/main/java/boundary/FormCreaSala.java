@@ -37,16 +37,14 @@ public class FormCreaSala extends JFrame{
     private JComboBox comboTipologia;
     private JTable tabellaAree;
 
-    DefaultTableModel tableModel = new DefaultTableModel(
-            new String[]{"Tipologia", "Postazioni"}, 0
-    );
+    DefaultTableModel tableModel = new DefaultTableModel(new String[]{"Tipologia", "Postazioni"}, 0);
 
     private FormBibliotecario parent;
 
     //GestoreSalaStudio ges = new GestoreSalaStudio(); /*Dato che non è un metodo static non posso chiamarlo come ho
     // fatto io. Domanda: dovrei impostarlo come static?*/
 
-    public void StampaDati(){
+    public void salvaDati(){
         String nome = nomeSala.getText();
         String descrizione = this.descrizione.getText();
         int numeroPostazioniTotali = Integer.parseInt(numPostazioniTotali.getText());
@@ -58,7 +56,6 @@ public class FormCreaSala extends JFrame{
         //List<Object[]> aree = new ArrayList<>();
         List<String> col1 = new ArrayList<>();
         List<Integer> col2 = new ArrayList<>();
-        List<Boolean> esiti = new ArrayList<>();
         if (presenzaAree) {
             for (int i = 0; i < tableModel.getRowCount(); i++) {
                 String tipologia = (String) tableModel.getValueAt(i, 0);
@@ -72,6 +69,9 @@ public class FormCreaSala extends JFrame{
         boolean esito1 = GestoreSalaStudio.aggiungiArea(col1, col2);
         if(esito && esito1){
             btnSalva.setForeground(Color.GREEN);
+            JOptionPane.showMessageDialog(null, "Sala creata correttamente");
+            dispose();
+            parent.setVisible(true);
         }
         else{
             btnSalva.setForeground(Color.RED);
@@ -83,7 +83,7 @@ public class FormCreaSala extends JFrame{
 
         setTitle("Crea Sala");
         setContentPane(contentPane);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         pack();
         setLocationRelativeTo(null);
@@ -93,9 +93,7 @@ public class FormCreaSala extends JFrame{
 
         tabellaAree.setModel(tableModel);
 
-        tableModel = new DefaultTableModel(
-                new String[]{"Tipologia", "Postazioni", ""}, 0
-        ) {
+        tableModel = new DefaultTableModel(new String[]{"Tipologia", "Postazioni", ""}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return column == 2; // solo la colonna del bottone è cliccabile
@@ -107,8 +105,7 @@ public class FormCreaSala extends JFrame{
                 new TableCellRenderer() {
                     private final JButton btn = new JButton("-");
                     @Override
-                    public Component getTableCellRendererComponent(JTable table, Object value,
-                                                                   boolean isSelected, boolean hasFocus, int row, int col) {
+                    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
                         return btn;
                     }
                 }
@@ -120,8 +117,7 @@ public class FormCreaSala extends JFrame{
                     private int row;
                     { btn.addActionListener(ev -> finalTableModel.removeRow(row)); }
                     @Override
-                    public Component getTableCellEditorComponent(JTable table, Object value,
-                                                                 boolean isSelected, int r, int col) {
+                    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int r, int col) {
                         this.row = r;
                         return btn;
                     }
@@ -133,7 +129,7 @@ public class FormCreaSala extends JFrame{
         btnSalva.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                StampaDati();
+                salvaDati();
             }
         });
 
