@@ -24,7 +24,8 @@ public class Studente {
 
     public Studente() {}
 
-    public Studente(String nome, String cognome, String email, String password) {
+    public Studente(long matricola, String nome, String cognome, String email, String password) {
+        this.matricola = matricola;
         this.nome = nome;
         this.cognome = cognome;
         this.email = email;

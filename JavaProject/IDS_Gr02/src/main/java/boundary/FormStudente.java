@@ -10,7 +10,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class FormStudente {
+public class FormStudente extends JFrame {
     private JLabel titoloStudente;
     private JButton effettuaPrenotazioneButton;
     private JButton annullaPrenotazioneButton;
@@ -66,7 +66,11 @@ public class FormStudente {
 
     public FormStudente(Sessione session) {
         this.frame = new JFrame("Studente");
-
+        setTitle("Studente");
+        setContentPane(panelStudente);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setResizable(false);
+        pack();
 
         fasceOrarieDisponibiliButton.addActionListener(new ActionListener() {
             @Override

@@ -42,7 +42,7 @@ public class FormConsultaFasceOrarie extends JFrame {
     protected JScrollPane fasceScrollPane;
     protected JLabel fasceHeaderLabel;
     protected JLabel hintLabel;
-    protected JPanel root;
+    protected JPanel panelConsultaFasceOrarie;
     protected JLabel labelTitolo;
 
     protected final List<DateButton> dateButtons = new ArrayList<>();
@@ -63,59 +63,59 @@ public class FormConsultaFasceOrarie extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
 
-        root = new JPanel();
-        root.setLayout(new BoxLayout(root, BoxLayout.Y_AXIS));
-        root.setBackground(BG_PAGE);
-        root.setBorder(new EmptyBorder(24, 28, 24, 28));
+        panelConsultaFasceOrarie = new JPanel();
+        panelConsultaFasceOrarie.setLayout(new BoxLayout(panelConsultaFasceOrarie, BoxLayout.Y_AXIS));
+        panelConsultaFasceOrarie.setBackground(BG_PAGE);
+        panelConsultaFasceOrarie.setBorder(new EmptyBorder(24, 28, 24, 28));
 
         // Titolo
         labelTitolo = new JLabel("Consulta fasce orarie disponibili");
         labelTitolo.setFont(labelTitolo.getFont().deriveFont(Font.BOLD, 18f));
         labelTitolo.setForeground(TEXT_PRIMARY);
         labelTitolo.setAlignmentX(Component.LEFT_ALIGNMENT);
-        root.add(labelTitolo);
-        root.add(Box.createVerticalStrut(20));
+        panelConsultaFasceOrarie.add(labelTitolo);
+        panelConsultaFasceOrarie.add(Box.createVerticalStrut(20));
 
         // Bottone torna
         // root.add(Box.createVerticalStrut(8));
         RoundedButton btnTorna = new RoundedButton("← Torna al menu");
         btnTorna.setAlignmentX(Component.LEFT_ALIGNMENT);
         btnTorna.addActionListener(e -> { new FormStudente(session); dispose(); });
-        root.add(btnTorna);
-        root.add(Box.createVerticalStrut(20));
+        panelConsultaFasceOrarie.add(btnTorna);
+        panelConsultaFasceOrarie.add(Box.createVerticalStrut(20));
 
 
         // Sala
-        root.add(buildSectionLabel("Sala"));
-        root.add(Box.createVerticalStrut(8));
-        root.add(buildCombo());
-        root.add(Box.createVerticalStrut(20));
+        panelConsultaFasceOrarie.add(buildSectionLabel("Sala"));
+        panelConsultaFasceOrarie.add(Box.createVerticalStrut(8));
+        panelConsultaFasceOrarie.add(buildCombo());
+        panelConsultaFasceOrarie.add(Box.createVerticalStrut(20));
 
         // Data
-        root.add(buildSectionLabel("Data"));
-        root.add(Box.createVerticalStrut(8));
-        root.add(buildDateScrollPane());
-        root.add(Box.createVerticalStrut(20));
+        panelConsultaFasceOrarie.add(buildSectionLabel("Data"));
+        panelConsultaFasceOrarie.add(Box.createVerticalStrut(8));
+        panelConsultaFasceOrarie.add(buildDateScrollPane());
+        panelConsultaFasceOrarie.add(Box.createVerticalStrut(20));
 
         // Separatore
-        root.add(buildDivider());
-        root.add(Box.createVerticalStrut(20));
+        panelConsultaFasceOrarie.add(buildDivider());
+        panelConsultaFasceOrarie.add(Box.createVerticalStrut(20));
 
         // Fasce orarie
         fasceHeaderLabel = buildSectionLabel("Fasce orarie");
         fasceHeaderLabel.setVisible(false);
-        root.add(fasceHeaderLabel);
-        root.add(Box.createVerticalStrut(8));
-        root.add(buildFasceScrollPane());
+        panelConsultaFasceOrarie.add(fasceHeaderLabel);
+        panelConsultaFasceOrarie.add(Box.createVerticalStrut(8));
+        panelConsultaFasceOrarie.add(buildFasceScrollPane());
 
         // Hint iniziale
         hintLabel = new JLabel("Seleziona una sala per vedere le date disponibili.");
         hintLabel.setFont(hintLabel.getFont().deriveFont(13f));
         hintLabel.setForeground(TEXT_TERTIARY);
         hintLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        root.add(hintLabel);
+        panelConsultaFasceOrarie.add(hintLabel);
 
-        setContentPane(root);
+        setContentPane(panelConsultaFasceOrarie);
         getContentPane().setBackground(BG_PAGE);
     }
 

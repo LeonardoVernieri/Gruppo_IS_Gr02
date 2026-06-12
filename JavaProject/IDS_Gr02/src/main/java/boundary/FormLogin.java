@@ -78,7 +78,8 @@ public class FormLogin extends JFrame {
             JOptionPane.showMessageDialog(this, "Login eseguito come Studente.", "Accesso eseguito", JOptionPane.INFORMATION_MESSAGE);
             Sessione session = Sessione.getInstance();
             session.apriSessioneStudente(s);
-            new FormStudente(session);
+            FormStudente formStudente = new FormStudente(session);
+            formStudente.setVisible(true);
             dispose();
         }
         else if (utente instanceof Bibliotecario b) {

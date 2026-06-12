@@ -1,16 +1,11 @@
 package boundary;
 
 import control.Sessione;
-import database.GestorePersistenza;
 import dto.FasciaOraria;
-import control.GestoreSaleStudio;
 import control.GestorePrenotazioni;
-import entity.Studente;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
 import java.util.*;
 import java.util.List;
 
@@ -18,7 +13,7 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
 
     // ── Stato aggiuntivo ──────────────────────────────────────────────────────
     private final Set<FasciaOraria> fasceSelezionate = new LinkedHashSet<>();
-    private JPanel areaSection;
+    private JPanel controlPanel;
     private JComboBox<String> comboArea;
 
     private Sessione session;
@@ -33,8 +28,8 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
 
         // Aggiorna il titolo visivo (il JLabel è già nel root, lo sostituiamo)
         // È più semplice aggiungere la sezione area in fondo al root esistente.
-        areaSection = buildAreaSection();
-        root.add(areaSection);
+        controlPanel = buildAreaSection();
+        panelConsultaFasceOrarie.add(controlPanel);
 
         // Aggiorna l'header fasce per indicare la selezione multipla
         fasceHeaderLabel.setText("FASCE ORARIE — SELEZIONA UNA O PIÙ");
@@ -71,7 +66,7 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
     @Override
     protected void onSalaSelezionata() {
         fasceSelezionate.clear();
-        areaSection.setVisible(false);
+        controlPanel.setVisible(false);
         aggiornaComboAree();
         super.onSalaSelezionata();
     }
@@ -79,7 +74,7 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
     @Override
     protected void buildDateButtons() {
         fasceSelezionate.clear();
-        areaSection.setVisible(false);
+        controlPanel.setVisible(false);
         super.buildDateButtons();
     }
 
@@ -91,7 +86,7 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
             fasceSelezionate.add(fascia);
             slotBtn.setSelected(true);
         }
-        areaSection.setVisible(!fasceSelezionate.isEmpty());
+        controlPanel.setVisible(!fasceSelezionate.isEmpty());
         revalidate();
         repaint();
     }

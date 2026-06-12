@@ -11,6 +11,7 @@ https://jakarta.ee/xml/ns/persistence/persistence_3_1.xsd"
         <class>entity.Studente</class>
         <class>entity.Prenotazione</class>
         <class>entity.Postazione</class>
+        <class>entity.Area</class>
         <properties>
             <property name="jakarta.persistence.jdbc.driver"
                       value="com.mysql.cj.jdbc.Driver"/>
@@ -21,7 +22,7 @@ https://jakarta.ee/xml/ns/persistence/persistence_3_1.xsd"
             <property name="jakarta.persistence.jdbc.password"
                       value="wasd"/>
             <property name="hibernate.hbm2ddl.auto"
-                      value="create-drop"/>
+                      value="update"/>
             <property name="hibernate.show_sql"
                       value="true"/>
             <property name="hibernate.format_sql"
