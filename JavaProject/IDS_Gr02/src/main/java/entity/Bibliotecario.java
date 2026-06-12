@@ -11,6 +11,10 @@ import java.util.List;
 @Entity
 public class Bibliotecario{
 
+
+    @Transient
+    private GestorePersistenza gestorePersistenza;
+
     @Id
     //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private long codiceInterno;
