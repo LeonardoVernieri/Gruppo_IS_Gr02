@@ -26,4 +26,6 @@ public class Studente {
     }
     public String getPassword() { return password; }
     public void setPassword(String p) { this.password = p; }
+    public String getNome() { return nome; }
+    public void setNome(String p) { this.nome = p; }
 }
