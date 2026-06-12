@@ -1,14 +1,15 @@
 package testDBese;
 
+import entity.*;
 import boundary.FormStudente;
 import database.GestorePersistenza;
-import entity.Bibliotecario;
-import entity.FasciaOraria;
-import entity.Postazione;
-import entity.SalaStudio;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import org.hibernate.internal.build.AllowSysOut;
+import entity.Prenotazione;
+import entity.StatoPrenotazioneEnum;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -32,7 +33,7 @@ public class MainCreaTabelle {
         }
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
 
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("bibliotecaSys");
         emf.close();
@@ -52,6 +53,31 @@ public class MainCreaTabelle {
     }
 
     // prova
+*/
+
+    public static void main(String[] args) {
+
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("bibliotecaSys");
+        emf.close();
+        System.out.println("Avvio di Hibernate completato.");
+
+        // Crea uno studente di prova
+        Studente studente = new Studente();
+        GestorePersistenza gp = new GestorePersistenza();
+        gp.salva(studente);
+
+        // Lancia il FormStudente
+        new FormStudente(studente); //prova
+
+        // Crea una prenotazione di test per oggi
+        Prenotazione prenotazione = new Prenotazione();
+        prenotazione.setStudente(studente);
+        prenotazione.setStato(StatoPrenotazioneEnum.ATTIVA);
+        prenotazione.setDataCheckIn(LocalDate.now());
+        prenotazione.setInizioTempo(LocalTime.of(9, 0));
+        prenotazione.setFineTempo(LocalTime.of(10, 0));
+        gp.salva(prenotazione);
+    }
 
 }
 

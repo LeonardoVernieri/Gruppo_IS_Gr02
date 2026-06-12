@@ -73,6 +73,31 @@ public class GestorePersistenza {
      * Usare una sola transazione è importante: o vengono salvati tutti
      * gli oggetti, oppure, in caso di errore, non viene salvato nessuno.
      */
+    public void aggiorna(Object oggetto) {
+
+        EntityManager em = JpaUtil.getInstance().getEntityManager();
+
+        try {
+            em.getTransaction().begin();
+
+            em.merge(oggetto);
+
+            em.getTransaction().commit();
+
+        } catch (RuntimeException e) {
+
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+
+            throw e;
+
+        } finally {
+            em.close();
+        }
+    }   //metodo per aggiornare gli oggetti
+
+
     public void salvaTutti(Object... oggetti) {
 
         EntityManager em = JpaUtil.getInstance().getEntityManager();
