@@ -26,7 +26,6 @@ public class FormRegistrazione extends JFrame {
 
     public FormRegistrazione(FormLogin parent) {
         this.parent = parent;
-
         setTitle("Registrazione");
         setContentPane(contentPane);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

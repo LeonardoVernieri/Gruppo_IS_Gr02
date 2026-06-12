@@ -36,6 +36,8 @@ public class FormCreaSala extends JFrame{
     private JSpinner spinnerPostazioni;
     private JComboBox comboTipologia;
     private JTable tabellaAree;
+    private JLabel lblTipo;
+    private JComboBox tipologiaSala;
 
     DefaultTableModel tableModel = new DefaultTableModel(new String[]{"Tipologia", "Postazioni"}, 0);
 

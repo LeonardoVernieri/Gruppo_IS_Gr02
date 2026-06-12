@@ -72,7 +72,7 @@ public class FormLogin extends JFrame {
             else if (utente instanceof Bibliotecario b) {
                 messaggioLabel.setText("Benvenuto " + b.getNome() + "!");
                 BibliotecarioStub stub = new BibliotecarioStub(b.getNome(), b.getCognome());
-                FormBibliotecario formBib = new FormBibliotecario(stub);
+                FormBibliotecario formBib = new FormBibliotecario();
                 formBib.setVisible(true);
                 this.dispose();
             }
