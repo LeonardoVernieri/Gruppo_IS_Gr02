@@ -1,8 +1,8 @@
 package control;
 
-import entity.*;
+import entity.Bibliotecario;
+import entity.Studente;
 
-// control/Sessione.java
 public class Sessione {
 
     private static Sessione instance;
@@ -18,13 +18,11 @@ public class Sessione {
         return instance;
     }
 
-    // apertura sessione bibliotecario
     public void apriSessioneBibliotecario(Bibliotecario b) {
         this.bibliotecarioCorrente = b;
         this.studenteCorrente = null;
     }
 
-    // apertura sessione studente
     public void apriSessioneStudente(Studente s) {
         this.studenteCorrente = s;
         this.bibliotecarioCorrente = null;

@@ -1,44 +1,43 @@
 package control;
 
-import database.GestoreBibliotecari;
-import database.GestoreStudenti;
+import entity.GestoreBibliotecari;
+import entity.GestoreStudenti;
 import entity.Bibliotecario;
 import entity.Studente;
+import org.hibernate.sql.exec.spi.JdbcOperation;
+
+import javax.swing.*;
 
 public class GestoreAccesso {
 
     private static final int MAX_TENTATIVI = 3;
     private int contatore = 0;
 
-    public Object loginUtente(String email, String password)
-            throws Exception {
-        if (contatore >= MAX_TENTATIVI) {
-            throw new Exception(
-                    "Account bloccato: troppi tentativi falliti.");
-        }
+    public Object loginUtente(String email, String password) {
+
+        if (contatore >= MAX_TENTATIVI)
+            return null;
 
         GestoreStudenti gestoreStudenti = new GestoreStudenti();
-
         Studente studente = gestoreStudenti.cercaStudente(email);
 
         if (studente == null) {
             GestoreBibliotecari gestoreBibliotecari = new GestoreBibliotecari();
-
             Bibliotecario bibliotecario = gestoreBibliotecari.cercaBibliotecario(email);
 
             if (bibliotecario == null || !bibliotecario.getPassword().equals(password)) {
                 contatore++;
-                throw new Exception("Credenziali errate/Tentativi Massimi Raggiunti");
+                return null;
             }
             contatore = 0;
             return bibliotecario;
         }
 
-        if (!studente.getPassword().equals(password))
-        {
+        if (!studente.getPassword().equals(password)) {
             contatore++;
-            throw new Exception("Credenziali errate/Tentativi Massimi Raggiunti");
+            return null;
         }
+
         contatore = 0;
         return studente;
     }
@@ -47,40 +46,42 @@ public class GestoreAccesso {
 
 
 
-    public void registraStudente(Long matricola, String nome, String cognome, String email, String password)
-            throws Exception {validaDati(nome, cognome, email, password);
+    public static boolean registraStudente(Long matricola, String nome, String cognome, String email, String password){
+        boolean esito = validaDati(nome, cognome, email, password);
 
         if (matricola == null) {
-            throw new Exception("Matricola obbligatoria.");
+            JOptionPane.showMessageDialog(null, "Inserire matricola");
         }
         GestoreStudenti gestoreStudenti = new GestoreStudenti();
-        GestoreBibliotecari gestoreBibliotecari = new GestoreBibliotecari();
 
 
-        if (gestoreStudenti.cercaStudente(email) != null || gestoreBibliotecari.cercaBibliotecario(email) != null) {
-            throw new Exception("Email già associata a un altro Utente.");
+        if (gestoreStudenti.cercaStudente(email) != null) {
+            JOptionPane.showMessageDialog(null, "Email già associata ad un altro studente");
+            return false;
         }
 
         if (gestoreStudenti.cercaPerMatricola(matricola) != null) {
-            throw new Exception("Matricola già registrata.");
+            JOptionPane.showMessageDialog(null, "Matricola già registrata");
+            return false;
         }
 
-        gestoreStudenti.creaStudente(matricola, nome, cognome, email, password);}
+        return gestoreStudenti.creaStudente(matricola, nome, cognome, email, password);
+    }
 
-    public void registraBibliotecario(Long codiceInterno, String nome, String cognome, String email, String password)
-            throws Exception {validaDati(nome, cognome, email, password);
+    public static boolean registraBibliotecario(Long codiceInterno, String nome, String cognome, String email, String password){
+        boolean esito = validaDati(nome, cognome, email, password);
 
-        if (codiceInterno == null)
-            throw new Exception("Codice identificativo obbligatorio.");
-
-        GestoreStudenti gestoreStudenti = new GestoreStudenti();
+        if (codiceInterno == null){
+            JOptionPane.showMessageDialog(null, "Codice identificativo obbligatorio.");
+            return false;
+        }
         GestoreBibliotecari gestoreBibliotecari = new GestoreBibliotecari();
 
-        if (gestoreStudenti.cercaStudente(email) != null || gestoreBibliotecari.cercaBibliotecario(email) != null)
-        {
-            throw new Exception("Email già registrata.");
+        if (gestoreBibliotecari.cercaBibliotecario(email) != null){
+            JOptionPane.showMessageDialog(null, "Email già registrata.");
+            return false;
         }
-        gestoreBibliotecari.creaBibliotecario(codiceInterno, nome, cognome, email, password);
+        return gestoreBibliotecari.creaBibliotecario(codiceInterno, nome, cognome, email, password);
     }
 
     public void registraUtente(String ruolo, String nome, String cognome, String email, String password, Long extra)
@@ -90,13 +91,19 @@ public class GestoreAccesso {
         else {registraBibliotecario(extra, nome, cognome, email, password);}
     }
 
-    private void validaDati(String nome, String cognome, String email, String password)
-            throws Exception {
-        if (nome == null || nome.isBlank())
-            throw new Exception("Nome obbligatorio.");
-        if (cognome == null || cognome.isBlank())
-            throw new Exception("Cognome obbligatorio.");
-        if (email == null || !email.contains("@"))
-            throw new Exception("Email non valida.");
+    public static boolean validaDati(String nome, String cognome, String email, String password) {
+        if (nome == null || nome.isBlank()) {
+            JOptionPane.showMessageDialog(null, "Nome obbligatorio");
+            return false;
+        }
+        if (cognome == null || cognome.isBlank()) {
+            JOptionPane.showMessageDialog(null, "Cognome obbligatorio");
+            return false;
+        }
+        if (email == null || !email.contains("@")) {
+            JOptionPane.showMessageDialog(null, "Email non valida");
+            return false;
+        }
+        return true;
     }
 }

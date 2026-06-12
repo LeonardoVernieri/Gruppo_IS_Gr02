@@ -12,7 +12,7 @@ import java.util.List;
 public class Bibliotecario{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private long codiceInterno;
 
     private String nome;
@@ -60,4 +60,11 @@ public class Bibliotecario{
         return false;
 
     }
+
+    public String getPassword() { return password; }
+    public void setPassword(String p) { this.password = p; }
+    public String getNome() { return nome; }
+    public void setNome(String p) { this.nome = p; }
+    public String getCognome() { return cognome; }
+    public void setCognome(String p) { this.cognome = p; }
 }

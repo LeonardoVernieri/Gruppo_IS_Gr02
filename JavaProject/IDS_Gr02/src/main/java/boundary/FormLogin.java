@@ -1,9 +1,9 @@
 package boundary;
 
 import control.GestoreAccesso;
+import control.Sessione;
 import entity.Bibliotecario;
 import entity.Studente;
-import stub.BibliotecarioStub;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,66 +29,67 @@ public class FormLogin extends JFrame {
         pack();
         setLocationRelativeTo(null);
 
-        loginButton.addActionListener
-                (
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        eseguiLogin();
-                    }
-                }
+        loginButton.addActionListener(
+                        new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                eseguiLogin();
+                            }
+                        }
                 );
 
-        registratiButton.addActionListener
-                (
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        apriRegistrazione();
-                    }
-                }
+        registratiButton.addActionListener(
+                        new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                apriRegistrazione();
+                            }
+                        }
                 );
     }
 
     private void eseguiLogin() {
         if (gestoreAccesso.isBloccato()) {
-            messaggioLabel.setForeground(Color.RED);
-            messaggioLabel.setText("Tentativi massimi raggiunti.");
-            loginButton.setEnabled(false);
+            JOptionPane.showMessageDialog(null, "Tentativi massimi raggiunti");
+            dispose();
             return;
         }
 
         String email = emailField.getText().trim();
         String password = new String(passwordField.getPassword());
-
-        try {
-            Object utente = gestoreAccesso.loginUtente(email, password);
-            messaggioLabel.setForeground(new Color(0, 128, 0));
-            if (utente instanceof Studente s)
-            {
-                messaggioLabel.setText("Benvenuto " + s.getNome() + "!");
-                JOptionPane.showMessageDialog(this, "Login eseguito come Studente.", "Accesso eseguito", JOptionPane.INFORMATION_MESSAGE);
+        Object utente = gestoreAccesso.loginUtente(email, password);
+        if (utente == null) {
+            if (gestoreAccesso.isBloccato()){
+                JOptionPane.showMessageDialog(this, "Account bloccato: troppi tentativi falliti.", "Errore", JOptionPane.ERROR_MESSAGE);
+                messaggioLabel.setText("Tentativi massimi raggiunti.");
+                loginButton.setEnabled(false);
             }
-            else if (utente instanceof Bibliotecario b) {
-                messaggioLabel.setText("Benvenuto " + b.getNome() + "!");
-                BibliotecarioStub stub = new BibliotecarioStub(b.getNome(), b.getCognome());
-                FormBibliotecario formBib = new FormBibliotecario(stub);
-                formBib.setVisible(true);
-                this.dispose();
+            else{
+                JOptionPane.showMessageDialog(this, "Credenziali errate, o registrazione non effettuata", "Errore di Accesso", JOptionPane.WARNING_MESSAGE);
             }
-
+            return;
         }
-        catch (Exception ex) {
-            messaggioLabel.setForeground(Color.RED);
-            messaggioLabel.setText(ex.getMessage());
+
+        messaggioLabel.setForeground(new Color(0, 128, 0));
+
+        if (utente instanceof Studente s) {
+            messaggioLabel.setText("Benvenuto " + s.getNome() + "!");
+            JOptionPane.showMessageDialog(this, "Login eseguito come Studente.", "Accesso eseguito", JOptionPane.INFORMATION_MESSAGE);
+        }
+        else if (utente instanceof Bibliotecario b) {
+            messaggioLabel.setText("Benvenuto " + b.getNome() + "!");
+            Sessione session = Sessione.getInstance();
+            session.apriSessioneBibliotecario(b);
+            FormBibliotecario formBib = new FormBibliotecario(session);
+            formBib.setVisible(true);
+            dispose();
         }
     }
 
-    private void apriRegistrazione()
-    {
+    private void apriRegistrazione(){
         FormRegistrazione formReg = new FormRegistrazione(this);
         formReg.setVisible(true);
-        this.setVisible(false);
+        dispose();
     }
 
     public static void main(String[] args) {
@@ -98,5 +99,4 @@ public class FormLogin extends JFrame {
         });
     }
 }
-
 

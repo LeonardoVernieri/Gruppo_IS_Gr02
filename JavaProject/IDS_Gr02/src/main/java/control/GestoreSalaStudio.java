@@ -20,8 +20,8 @@ public class GestoreSalaStudio {
                                              boolean presenzaAree) {
 
         Bibliotecario bibliotecario = new Bibliotecario();
-        bibliotecario = Sessione.getInstance().getBibliotecarioCorrente();
-        if (bibliotecario == null) return false; // sessione non valida
+        /*bibliotecario = Sessione.getInstance().getBibliotecarioCorrente();
+        if (bibliotecario == null) return false; // sessione non valida*/
         return bibliotecario.creaSalaStudio(nome, descrizione, numeroPostazioniTotali, orarioApertura, orarioChiusura, presenzaAree);
     }
 

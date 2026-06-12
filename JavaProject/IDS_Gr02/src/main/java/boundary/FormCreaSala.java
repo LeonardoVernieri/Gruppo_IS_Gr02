@@ -40,6 +40,7 @@ public class FormCreaSala extends JFrame{
     DefaultTableModel tableModel = new DefaultTableModel(new String[]{"Tipologia", "Postazioni"}, 0);
 
     private FormBibliotecario parent;
+    private Sessione session;
 
     public void salvaDati(){
         String nome = nomeSala.getText();
@@ -109,8 +110,9 @@ public class FormCreaSala extends JFrame{
         parent.setVisible(true);
     }
 
-    public FormCreaSala(FormBibliotecario parent) {
+    public FormCreaSala(FormBibliotecario parent, Sessione session) {
         this.parent = parent;
+        this.session = session;
 
         setTitle("Crea Sala");
         setContentPane(contentPane);

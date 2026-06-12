@@ -21,15 +21,13 @@ public class FormRegistrazione extends JFrame {
     private JButton annullaButton;
     private JLabel messaggioLabel;
 
-    private GestoreAccesso gestoreAccesso = new GestoreAccesso();
     private FormLogin parent;
 
     public FormRegistrazione(FormLogin parent) {
         this.parent = parent;
-
         setTitle("Registrazione");
         setContentPane(contentPane);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         pack();
         setLocationRelativeTo(null);
@@ -85,32 +83,19 @@ public class FormRegistrazione extends JFrame {
         String password = new String(passwordField.getPassword());
         String ruolo = (String) ruoloComboBox.getSelectedItem();
         Long extra = Long.valueOf(campoAggiuntivoField.getText().trim());
+        boolean esito;
 
-        try {
-            if ("STUDENTE".equals(ruolo))
-            {
-                gestoreAccesso.registraStudente(extra, nome, cognome, email, password);
+        if ("STUDENTE".equals(ruolo)){
+            esito = GestoreAccesso.registraStudente(extra, nome, cognome, email, password);
+            if(esito){
+                JOptionPane.showMessageDialog(null, "Registrazione studente completata");
             }
-            else
-            {
-                gestoreAccesso.registraBibliotecario(extra, nome, cognome, email, password);
+        }
+        else{
+            esito = GestoreAccesso.registraBibliotecario(extra, nome, cognome, email, password);
+            if(esito){
+                JOptionPane.showMessageDialog(null, "Registrazione bibliotecario completata");
             }
-
-            messaggioLabel.setForeground(new Color(0, 128, 0));
-            messaggioLabel.setText("Registrazione completata!");
-
-            Timer timer = new Timer(2000, ev ->
-            {
-                if (parent != null) {
-                    parent.setVisible(true);
-                }
-                dispose();
-            });
-
-        } catch (Exception ex) {
-
-            messaggioLabel.setForeground(Color.RED);
-            messaggioLabel.setText(ex.getMessage());
         }
     }
     public static void main(String[] args) {

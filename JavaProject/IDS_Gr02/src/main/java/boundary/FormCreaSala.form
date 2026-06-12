@@ -48,7 +48,15 @@
           <text value="Numero postazioni"/>
         </properties>
       </component>
-      <component id="a61c8" class="javax.swing.JLabel" binding="lblTipo">
+      <component id="1d761" class="javax.swing.JTextField" binding="descrizione">
+        <constraints>
+          <grid row="3" column="1" row-span="1" col-span="8" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <name value=""/>
+        </properties>
+      </component>
+      <component id="a61c8" class="javax.swing.JLabel" binding="lblDescrizione">
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
             <preferred-size width="91" height="17"/>
@@ -82,17 +90,180 @@
           <text value="Crea Sala"/>
         </properties>
       </component>
-      <component id="88a13" class="javax.swing.JComboBox" binding="tipologiaSala">
+      <grid id="6d6e2" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="6" column="1" row-span="1" col-span="8" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="a5a98" class="javax.swing.JLabel" binding="areePresenza">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Presenza aree"/>
+            </properties>
+          </component>
+          <component id="7cd39" class="javax.swing.JCheckBox" binding="ckbPresenza">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value=""/>
+            </properties>
+          </component>
+          <grid id="407d7" binding="panelAggiungiArea" layout-manager="GridLayoutManager" row-count="4" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="daafd" class="javax.swing.JLabel" binding="lblAggiungiArea">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font size="11"/>
+                  <text value="Aggiungi area"/>
+                </properties>
+              </component>
+              <hspacer id="805ce">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="2" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
+              <component id="c41ee" class="javax.swing.JSpinner" binding="spinnerPostazioni">
+                <constraints>
+                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="7ebc5" class="javax.swing.JButton" binding="btnAdd">
+                <constraints>
+                  <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="+ Aggiungi"/>
+                </properties>
+              </component>
+              <component id="4679f" class="javax.swing.JComboBox" binding="comboTipologia">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <model>
+                    <item value="Silenziosa"/>
+                    <item value="Consultazione"/>
+                    <item value="Lavoro di gruppo"/>
+                  </model>
+                </properties>
+              </component>
+              <component id="bc3b1" class="javax.swing.JLabel" binding="lblPostazioniArea">
+                <constraints>
+                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font size="11"/>
+                  <text value="Postazioni"/>
+                </properties>
+              </component>
+              <component id="54dc7" class="javax.swing.JLabel" binding="lblTipologia">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font size="11"/>
+                  <text value="Tipologia"/>
+                </properties>
+              </component>
+              <scrollpane id="debd4">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="3" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="b1bdc" class="javax.swing.JTable" binding="tabellaAree">
+                    <constraints/>
+                    <properties/>
+                    <clientProperties>
+                      <html.disable class="java.lang.Boolean" value="false"/>
+                    </clientProperties>
+                  </component>
+                </children>
+              </scrollpane>
+            </children>
+          </grid>
+          <vspacer id="5e728">
+            <constraints>
+              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+            </constraints>
+          </vspacer>
+        </children>
+      </grid>
+      <vspacer id="9d2d9">
+        <constraints>
+          <grid row="4" column="8" row-span="2" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
+      <component id="f5ba" class="javax.swing.JLabel" binding="lblOrarioA">
+        <constraints>
+          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Orario apertura"/>
+        </properties>
+      </component>
+      <component id="726da" class="javax.swing.JLabel" binding="lblOrarioC">
+        <constraints>
+          <grid row="4" column="4" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Orario chiusura"/>
+        </properties>
+      </component>
+      <component id="483f2" class="javax.swing.JComboBox" binding="comboApertura">
+        <constraints>
+          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <model>
-            <item value="Lavoro"/>
-            <item value="Silenziosa"/>
-            <item value="Studio"/>
+            <item value="08:00:00"/>
+            <item value="09:00:00"/>
+            <item value="10:00:00"/>
+            <item value="11:00:00"/>
+            <item value="12:00:00"/>
+            <item value="13:00:00"/>
+            <item value="14:00:00"/>
+            <item value="15:00:00"/>
+            <item value="16:00:00"/>
+            <item value="17:00:00"/>
+            <item value="18:00:00"/>
           </model>
-          <name value=""/>
+        </properties>
+      </component>
+      <component id="6bd94" class="javax.swing.JComboBox" binding="comboChiusura">
+        <constraints>
+          <grid row="5" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <model>
+            <item value="08:00:00"/>
+            <item value="09:00:00"/>
+            <item value="10:00:00"/>
+            <item value="11:00:00"/>
+            <item value="12:00:00"/>
+            <item value="13:00:00"/>
+            <item value="14:00:00"/>
+            <item value="15:00:00"/>
+            <item value="16:00:00"/>
+            <item value="17:00:00"/>
+            <item value="18:00:00"/>
+          </model>
         </properties>
       </component>
     </children>
