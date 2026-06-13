@@ -1,9 +1,11 @@
 package entity;
 
+import control.GestoreSaleStudio;
 import database.GestorePersistenza;
 import dto.FasciaOraria;
 import jakarta.persistence.*;
 
+import javax.swing.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -153,5 +155,19 @@ public class SalaStudio{
     public void aggiungiArea(String tipologia, int numeroPostazioni) {
         Area area = new Area(tipologia, numeroPostazioni, this);
         aree.add(area);
+    }
+
+    public void creaPostazione(SalaStudio salaStudio){
+        for(int i=0;i<salaStudio.getNumeroPostazioni();i++){
+            Postazione p = new Postazione(salaStudio);
+            gestorePersistenza.salva(p);
+        }
+    }
+
+    public void creaArea(List<String> str, List<Integer> num, int numPostazioniTotali) {
+        for (int i = 0; i < str.size(); i++) {
+            Area area = new Area(str.get(i), num.get(i));
+            gestorePersistenza.salva(area);
+        }
     }
 }

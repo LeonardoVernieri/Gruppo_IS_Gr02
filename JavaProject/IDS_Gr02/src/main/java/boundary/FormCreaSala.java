@@ -91,11 +91,22 @@ public class FormCreaSala extends JFrame{
             JOptionPane.showMessageDialog(null, "Il numero di postazioni per area non possono essere negativi");
             sblocco = false;
         }
+        if (col1.size() != col2.size()) {
+            sblocco = false;
+        }
+        int s=0;
+        for(Integer n : col2){
+            s+=n;
+        }
+        if(s>Integer.parseInt(numPostazioniTotali.getText())){
+            JOptionPane.showMessageDialog(null, "Le postazioni delle aree non possono essere più delle postazioni totali");
+            sblocco = false;
+        }
 
 
-        boolean esito1 = GestoreSaleStudio.aggiungiArea(col1, col2, numeroPostazioniTotali);
-        if(esito1 && sblocco){
-            boolean esito = GestoreSaleStudio.aggiungiSalaStudio(nome, descrizione, numeroPostazioniTotali, orarioApertura, orarioChiusura, presenzaAree);
+        //boolean esito1 = GestoreSaleStudio.(col1, col2, numeroPostazioniTotali);
+        if(/*esito1&& */ sblocco){
+            boolean esito = GestoreSaleStudio.aggiungiSalaStudio(nome, descrizione, numeroPostazioniTotali, orarioApertura, orarioChiusura, presenzaAree, col1, col2);
             if(esito){
                 btnSalva.setForeground(Color.GREEN);
                 JOptionPane.showMessageDialog(null, "Sala creata correttamente");

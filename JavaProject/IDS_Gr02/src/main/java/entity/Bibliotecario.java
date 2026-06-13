@@ -52,11 +52,15 @@ public class Bibliotecario{
                                      int numeroPostazioniTotali,
                                      LocalTime orarioApertura,
                                      LocalTime orarioChiusura,
-                                     boolean presenzaAree){
+                                     boolean presenzaAree,
+                                     List<String> col1,
+                                     List<Integer> col2){
 
         if(orarioApertura.isBefore(orarioChiusura)){
             SalaStudio s = new SalaStudio(nome, descrizione, numeroPostazioniTotali, orarioApertura, orarioChiusura, presenzaAree);
             gp.salva(s);
+            s.creaArea(col1, col2, numeroPostazioniTotali);
+            s.creaPostazione(s);
             saleStudio.add(s);
             return true;
         }
