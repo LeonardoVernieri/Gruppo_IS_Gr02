@@ -33,8 +33,10 @@ public class Studente {
     }
 
     public String getPassword() { return password; }
-    public void setPassword(String p) { this.password = p; }
     public String getNome() { return nome; }
+    public String getEmail() { return email; }
+
+
     public void setNome(String p) { this.nome = p; }
 
 

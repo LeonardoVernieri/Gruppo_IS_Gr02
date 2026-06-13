@@ -146,7 +146,7 @@ public class FormRegistrazione extends BaseForm {
 
     private void aggiornaCampoAggiuntivo() {
         String ruolo = (String) ruoloComboBox.getSelectedItem();
-        if ("STUDENTE".equals(ruolo)) {
+        if ("Studente".equals(ruolo)) {
             campoAggiuntivoLabel.setText("MATRICOLA");
         } else {
             campoAggiuntivoLabel.setText("CODICE IDENTIFICATIVO");
@@ -165,9 +165,12 @@ public class FormRegistrazione extends BaseForm {
         boolean esito;
         if ("Studente".equals(ruolo)) {
             esito = GestoreAccesso.registraStudente(extra, nome, cognome, email, password);
-            if (esito) JOptionPane.showMessageDialog(null, "Registrazione studente completata");
-            new FormLogin().setVisible(true);
-            dispose();
+            if (esito) {
+                JOptionPane.showMessageDialog(null, "Registrazione studente completata");
+                new FormLogin().setVisible(true);
+                dispose();
+            }
+
         } else {
             esito = GestoreAccesso.registraBibliotecario(extra, nome, cognome, email, password);
             if (esito) JOptionPane.showMessageDialog(null, "Registrazione bibliotecario completata");
