@@ -47,10 +47,14 @@ public class GestoreAccesso {
 
 
     public static boolean registraStudente(Long matricola, String nome, String cognome, String email, String password){
-        boolean esito = validaDati(nome, cognome, email, password);
+
+        if (!validaDati(nome, cognome, email, password)) {
+            return false;
+        }
 
         if (matricola == null) {
             JOptionPane.showMessageDialog(null, "Inserire matricola");
+            return false;
         }
         GestoreStudenti gestoreStudenti = new GestoreStudenti();
 
@@ -69,7 +73,10 @@ public class GestoreAccesso {
     }
 
     public static boolean registraBibliotecario(Long codiceInterno, String nome, String cognome, String email, String password){
-        boolean esito = validaDati(nome, cognome, email, password);
+
+        if (!validaDati(nome, cognome, email, password)) {
+            return false;
+        }
 
         if (codiceInterno == null){
             JOptionPane.showMessageDialog(null, "Codice identificativo obbligatorio.");

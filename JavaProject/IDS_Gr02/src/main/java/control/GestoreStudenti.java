@@ -21,13 +21,21 @@ public class GestoreStudenti {
                 Map.of("matricola", matricola)
         );
     }
-    public void creaStudente(Long matricola, String nome,
+    public boolean creaStudente(Long matricola, String nome,
                              String cognome, String email,
                              String password) {
 
         Studente studente = new Studente(matricola, nome, cognome, email, password);
 
         GestorePersistenza gp = new GestorePersistenza();
-        gp.salva(studente);
+        try
+        {
+            gp.salva(studente);
+            return true;
+        }
+        catch (RuntimeException e)
+        {
+            return false;
+        }
     }
 }

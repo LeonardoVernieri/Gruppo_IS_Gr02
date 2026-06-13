@@ -14,13 +14,21 @@ public class GestoreBibliotecari {
         );
     }
 
-    public void creaBibliotecario(Long codiceInterno,
+    public boolean creaBibliotecario(Long codiceInterno,
                                   String nome, String cognome,
                                   String email, String password) {
 
         Bibliotecario bib = new Bibliotecario(codiceInterno, nome, cognome, email, password);
 
         GestorePersistenza gp = new GestorePersistenza();
-        gp.salva(bib);
+        try
+        {
+            gp.salva(bib);
+            return true;
+        }
+        catch (RuntimeException e)
+        {
+            return false;
+        }
     }
 }
