@@ -1,8 +1,6 @@
 package main;
 
-import boundary.FormLogin;
-
-import boundary.FormRegistrazione;
+import boundary.FormSplash;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
@@ -19,7 +17,7 @@ public class Main extends JFrame {
 
         System.out.println("Avvio di Hibernate completato.");
 
-        new FormLogin();
+        SwingUtilities.invokeLater(() -> new FormSplash());
     }
 
 

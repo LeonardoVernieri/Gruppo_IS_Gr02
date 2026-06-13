@@ -58,7 +58,14 @@ public abstract class BaseForm extends JFrame {
         getContentPane().setBackground(BG_PAGE);
     }
 
-    // ── Helper UI ─────────────────────────────────────────────────────────────
+    protected BaseForm(String titolo) {
+        setTitle(titolo);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setResizable(false);
+        getContentPane().setBackground(BG_PAGE);
+    }
+
+        // ── Helper UI ─────────────────────────────────────────────────────────────
 
     protected JLabel buildSectionLabel(String testo) {
         JLabel lbl = new JLabel(testo.toUpperCase());
