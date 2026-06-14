@@ -41,6 +41,9 @@ public class Studente {
 
 
     public Prenotazione creaPrenotazione(Postazione postazione, LocalDate data, FasciaOraria fascia) {
+        if (postazione == null) {
+            return null;
+        }
         return new Prenotazione(data, this, postazione, fascia.getOraInizio(), fascia.getOraFine());
     }
 
