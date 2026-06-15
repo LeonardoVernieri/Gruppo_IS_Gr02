@@ -11,7 +11,7 @@ public class Main extends JFrame {
     public static void main(String[] args) {
 
         EntityManagerFactory emf =
-                Persistence.createEntityManagerFactory("bibliotecaSys");
+                Persistence.createEntityManagerFactory("biblioteca_db");
 
         emf.close();
 

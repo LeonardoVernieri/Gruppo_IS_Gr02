@@ -21,9 +21,21 @@ public class FormSplash extends BaseForm {
         card.setPreferredSize(new Dimension(380, 300));
 
         // Icona / emoji
-        JLabel icona = new JLabel("📚", SwingConstants.CENTER);
-        icona.setFont(icona.getFont().deriveFont(48f));
+        JLabel icona = new JLabel();
+        icona.setHorizontalAlignment(SwingConstants.CENTER);
         icona.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        java.net.URL urlIcona = getClass().getResource("/icons/logo.png");
+        if (urlIcona != null) {
+            ImageIcon iconaRaw = new ImageIcon(urlIcona);
+            Image scaled = iconaRaw.getImage()
+                    .getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+            icona.setIcon(new ImageIcon(scaled));
+        } else {
+            // fallback se la risorsa non viene trovata
+            icona.setText("📚");
+            icona.setFont(icona.getFont().deriveFont(48f));
+        }
         card.add(icona);
         card.add(Box.createVerticalStrut(20));
 

@@ -20,7 +20,7 @@ public class Prenotazione {
     @Transient
     private StatoPrenotazione statoPrenotazione;
 
-    private LocalDate dataCheckIn;
+    private LocalTime dataCheckIn;
     private LocalDate data;
     private LocalTime inizioTempo;
     private LocalTime fineTempo;
@@ -51,7 +51,7 @@ public class Prenotazione {
         };
     }
 
-    public void setDataCheckIn(LocalDate dataCheckIn) {
+    public void setDataCheckIn(LocalTime dataCheckIn) {
         this.dataCheckIn = dataCheckIn;
     }
 
@@ -66,8 +66,9 @@ public class Prenotazione {
 
     @Override
     public String toString() {
-        return "Data: " + dataCheckIn +
-                " | Orario: " + inizioTempo + " - " + fineTempo;
+        return "Orario: " + inizioTempo + " - " + fineTempo
+                + " | Sala: " + postazione.getSalaStudio().getNome() +
+                (postazione.getArea() != null ? (" | Area: " + postazione.getArea().getTipologia()) : (" "));
     } //tostring per mostrare le informazioni della prenotazione per il metodo effettua checkin
 
     // Inizializza la classe stato corretta dell'oggetto prendendolo dallo salvato nel DB

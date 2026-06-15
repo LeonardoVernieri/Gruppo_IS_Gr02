@@ -15,7 +15,7 @@ public class FormCheckIn extends BaseForm {
     private final GestorePrenotazioni    gestorePrenotazioni;
 
     public FormCheckIn() {
-        super("Check-In", 480, 520);
+        super("Check-In");
 
         gestorePrenotazioni = new GestorePrenotazioni();
 
@@ -74,6 +74,7 @@ public class FormCheckIn extends BaseForm {
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setBorder(BorderFactory.createLineBorder(BORDER_LIGHT, 1));
         scrollPane.setOpaque(false);
+        scrollPane.setPreferredSize(new Dimension(380, 320));
 
         JScrollBar vsb = scrollPane.getVerticalScrollBar();
         vsb.setPreferredSize(new Dimension(6, 0));
@@ -132,6 +133,7 @@ public class FormCheckIn extends BaseForm {
             JOptionPane.showMessageDialog(this,
                     "Check-in effettuato con successo!",
                     "Successo", JOptionPane.INFORMATION_MESSAGE);
+            new FormStudente().setVisible(true);
             dispose();
         }
     }

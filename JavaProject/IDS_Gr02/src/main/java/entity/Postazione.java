@@ -45,6 +45,8 @@ public class Postazione {
     // Getter
     public Area getArea() { return area; }
 
+    public SalaStudio getSalaStudio() { return salaStudio; }
+
     // Setter
     public void setArea(Area area) { this.area = area; }
 

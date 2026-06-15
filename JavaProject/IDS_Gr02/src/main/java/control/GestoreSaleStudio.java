@@ -30,16 +30,16 @@ public class GestoreSaleStudio {
      */
     public Map<FasciaOraria, Integer> getNumPostazioniDisponibili(String nomeSala, LocalDate data, String area) {
         // Recupera dal catalogo tutte le fasce orarie con il relativo numero di posti liberi
-        Map<FasciaOraria, Integer> mapFasceOrarie = catalogoSala.getDisponibilitaFasciaOrariaSalaPerData(nomeSala, data, area);
+        Map<FasciaOraria, Integer> mapDisponibilitaPerFasceOrarie = catalogoSala.getDisponibilitaFasciaOrariaSalaPerData(nomeSala, data, area);
 
         // Se la data richiesta è oggi, filtra le fasce già iniziate
         if (data.equals(LocalDate.now())) {
             LocalTime adesso = LocalTime.now();
             // Rimuove tutte le fasce la cui ora di inizio è già passata
-            mapFasceOrarie.entrySet().removeIf(e -> e.getKey().getOraInizio().isBefore(adesso));
+            mapDisponibilitaPerFasceOrarie.entrySet().removeIf(e -> e.getKey().getOraInizio().isBefore(adesso));
         }
 
-        return mapFasceOrarie;
+        return mapDisponibilitaPerFasceOrarie;
     }
 
     /**

@@ -4,8 +4,8 @@ import boundary.ServizioNotifiche;
 import dto.FasciaOraria;
 import entity.*;
 
-import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -35,13 +35,15 @@ public class GestorePrenotazioni {
 
     // Effettua la prenotazione restituendo TRUE se non ci sono errori
     public boolean effettuaPrenotazione(String nomeSala, LocalDate data, FasciaOraria fascia,  Studente stud, String area) {
-        CatalogoPrenotazioni catalogoPrenotazioni = new CatalogoPrenotazioni();
 
         // Recupero l'oggetto SalaStudio
         SalaStudio s = catalogoSalaStudio.getSalaPerNome(nomeSala);
 
         // Recupero una postazione idonea alla prenotazione
         Postazione postazione = s.cercaPrimaPostazioneLibera(fascia, area, data);
+        if (postazione == null) {
+            return false;
+        }
 
         // Creo l'oggetto Prenotazione
         Prenotazione prenotazione = stud.creaPrenotazione(postazione, data, fascia);
@@ -65,9 +67,7 @@ public class GestorePrenotazioni {
 
     public void effettuaCheckIn(Prenotazione prenotazione) {
         prenotazione.conferma();
+        prenotazione.setDataCheckIn(LocalTime.now());
         catalogoPrenotazioni.aggiornaPrenotazione(prenotazione);
     }
-
-
-
 }

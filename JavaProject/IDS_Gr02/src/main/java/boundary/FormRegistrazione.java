@@ -174,6 +174,8 @@ public class FormRegistrazione extends BaseForm {
         } else {
             esito = GestoreAccesso.registraBibliotecario(extra, nome, cognome, email, password);
             if (esito) JOptionPane.showMessageDialog(null, "Registrazione bibliotecario completata");
+            new FormLogin().setVisible(true);
+            dispose();
         }
     }
 }

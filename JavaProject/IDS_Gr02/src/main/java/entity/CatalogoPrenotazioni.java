@@ -28,7 +28,7 @@ public class CatalogoPrenotazioni {
                 Prenotazione.class,
                 Map.of(
                         "studente", studente,
-                        "dataCheckIn", LocalDate.now(),
+                        "data", LocalDate.now(),
                         "stato", StatoPrenotazioneEnum.ATTIVA
                 )
         );

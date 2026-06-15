@@ -54,7 +54,7 @@ public class FormStudente extends BaseForm {
         }));
         card.add(Box.createVerticalStrut(10));
 
-        card.add(buildMenuButton("Visualizza fasce orarie", false, e -> {
+        card.add(buildMenuButton("Consulta fasce orarie disponibili", false, e -> {
             new FormConsultaFasceOrarie().setVisible(true);
             dispose();
         }));

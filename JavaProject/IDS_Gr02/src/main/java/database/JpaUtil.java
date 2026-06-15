@@ -38,7 +38,7 @@ public class JpaUtil {
          * definita nel file persistence.xml.
          *
          */
-        emf = Persistence.createEntityManagerFactory("bibliotecaSys");
+        emf = Persistence.createEntityManagerFactory("biblioteca_db");
     }
 
     /*

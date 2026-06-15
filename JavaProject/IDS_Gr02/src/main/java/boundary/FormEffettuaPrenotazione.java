@@ -6,11 +6,12 @@ import control.GestorePrenotazioni;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
 public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
+
+    private GestorePrenotazioni gestorePrenotazioni;
 
     // ── Stato aggiuntivo ──────────────────────────────────────────────────────
     private final Set<FasciaOraria> fasceSelezionate = new LinkedHashSet<>();
@@ -20,6 +21,8 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
 
     // ═════════════════════════════════════════════════════════════════════════
     public FormEffettuaPrenotazione() {
+
+        gestorePrenotazioni = new GestorePrenotazioni();
 
         super();
         // Il costruttore padre costruisce già tutta la UI base.
@@ -90,18 +93,12 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
     }
 
     private void onPrenota() {
-        if (fasceSelezionate.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Seleziona almeno una fascia oraria.",
-                    "Attenzione", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
 
         String areaSel = comboArea.getSelectedIndex() == 0
                 ? null
                 : (String) comboArea.getSelectedItem();
 
-        GestorePrenotazioni gestorePrenotazioni = new GestorePrenotazioni();
+
 
         boolean esito = gestorePrenotazioni.isPrenotazioneUnicaPossibile(nomeSala, fasceSelezionate, dataSelezionata, areaSel);
 

@@ -201,10 +201,4 @@ public class SalaStudio{
 
         return false;
     }
-
-    public void aggiungiArea(String tipologia, int numeroPostazioni) {
-        Area area = new Area(tipologia, numeroPostazioni, this);
-        aree.add(area);
-    }
-
 }
