@@ -66,20 +66,33 @@ cd Gruppo_IS_VernieriLeonardo
 ```
 
 **2. Configura il database:**
+
+Imposta le seguenti variabili d'ambiente prima di eseguire l'applicazione:
+
 ```bash
-cp JavaProject/IDS_Gr02/src/main/resources/database.properties.example \
-   JavaProject/IDS_Gr02/src/main/resources/database.properties
+export DB_DRIVER=com.mysql.cj.jdbc.Driver
+export DB_URL=jdbc:mysql://127.0.0.1:3306/biblioteca_db?createDatabaseIfNotExist=true
+export DB_USERNAME=root
+export DB_PASSWORD=your_mysql_password
 ```
 
-Modifica `database.properties` con le tue credenziali MySQL:
-```properties
-db.driver=com.mysql.cj.jdbc.Driver
-db.url=jdbc:mysql://127.0.0.1:3306/biblioteca_db?createDatabaseIfNotExist=true
-db.username=root
-db.password=YOUR_PASSWORD
+Oppure, per Windows (cmd):
+```cmd
+set DB_DRIVER=com.mysql.cj.jdbc.Driver
+set DB_URL=jdbc:mysql://127.0.0.1:3306/biblioteca_db?createDatabaseIfNotExist=true
+set DB_USERNAME=root
+set DB_PASSWORD=your_mysql_password
 ```
 
-Il database viene creato automaticamente al primo avvio.
+Oppure per PowerShell:
+```powershell
+$env:DB_DRIVER="com.mysql.cj.jdbc.Driver"
+$env:DB_URL="jdbc:mysql://127.0.0.1:3306/biblioteca_db?createDatabaseIfNotExist=true"
+$env:DB_USERNAME="root"
+$env:DB_PASSWORD="your_mysql_password"
+```
+
+Il database viene creato automaticamente al primo avvio se non esiste.
 
 **3. Build e Run:**
 ```bash
