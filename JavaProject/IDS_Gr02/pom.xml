@@ -49,3 +49,38 @@
         </repository>
     </repositories>
 </project>
+
+
+<build>
+<plugins>
+    <plugin>
+        <groupId>it.unina.GestoreSaleStudio</groupId>
+        <artifactId>GestoreSalaStudioGr02</artifactId>
+        <version>3.6.0</version>
+        <executions>
+            <execution>
+                <phase>package</phase>
+                <goals><goal>shade</goal></goals>
+                <configuration>
+                    <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>main.Main</mainClass>
+                        </transformer>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                    </transformers>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+            </execution>
+        </executions>
+    </plugin>
+</plugins>
+</build>
