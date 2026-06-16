@@ -67,12 +67,6 @@ cd Gruppo_IS_VernieriLeonardo
 
 **2. Configura il database:**
 
-Copia il file di esempio e modifica le credenziali:
-
-```bash
-cp database.properties.example database.properties
-```
-
 Apri `database.properties` e modifica con le tue credenziali MySQL:
 
 ```properties
