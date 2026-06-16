@@ -45,7 +45,7 @@ public class FormConsultaFasceOrarie extends BaseForm {
 
     /** Costruisce il form, istanzia il controller e monta i pannelli (sala, data, area, fasce). */
     public FormConsultaFasceOrarie() {
-        super(); // eredita titolo, DISPOSE_ON_CLOSE, sfondo e resizable=false da BaseForm
+        super();
         gestoreSaleStudio = new GestoreSaleStudio();
 
         setSize(660, 700);

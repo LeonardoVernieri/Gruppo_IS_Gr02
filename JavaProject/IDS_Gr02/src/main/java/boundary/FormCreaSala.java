@@ -42,7 +42,7 @@ public class FormCreaSala extends BaseForm {
 
 
     public FormCreaSala() {
-        super(480, 620);
+        super();
         gestoreSaleStudio = new GestoreSaleStudio();
 
         // ── Root ─────────────────────────────────────────────────────────────
