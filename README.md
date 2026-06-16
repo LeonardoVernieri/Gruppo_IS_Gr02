@@ -78,8 +78,6 @@ db.password=your_mysql_password
 
 Il database viene creato automaticamente al primo avvio se non esiste.
 
-> ⚠️ **Nota:** `database.properties` è incluso in `.gitignore` - non commitare mai le tue credenziali!
-
 **3. Build e Run:**
 ```bash
 mvn clean package -f JavaProject/IDS_Gr02/pom.xml
