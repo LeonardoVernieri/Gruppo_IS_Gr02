@@ -6,10 +6,23 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
+/**
+ * Form (boundary) del menu principale dello studente.
+ * <p>
+ * Presenta le azioni disponibili per il ruolo studente: effettuare una
+ * prenotazione, fare il check-in, consultare le fasce orarie disponibili e
+ * (in prospettiva) annullare prenotazioni e accedere al profilo. Legge l'utente
+ * corrente dalla {@link Sessione} per il saluto e instrada verso i form
+ * specifici. Eredita aspetto e componenti grafici da {@link BaseForm}.
+ */
 public class FormStudente extends BaseForm {
 
     public FormStudente() {
-        super( 420, 500);
+        super();
+
+        // Schermata per mostrare il funzionamento del servizio email
+        SwingUtilities.invokeLater(() ->
+                FormCasellaNotifiche.mostra(SwingUtilities.getWindowAncestor(this)));
 
         // ── Root ─────────────────────────────────────────────────────────────
         JPanel root = new JPanel(new GridBagLayout());
@@ -42,26 +55,28 @@ public class FormStudente extends BaseForm {
             dispose();
         }));
         card.add(Box.createVerticalStrut(10));
-
         card.add(buildMenuButton("Annulla prenotazione", false, e -> {
             mostraFunzioneProssimamente();
         }));
         card.add(Box.createVerticalStrut(10));
-
         card.add(buildMenuButton("Effettua Check-In", false, e -> {
             new FormCheckIn();
-            setVisible(false);
+            dispose();
         }));
         card.add(Box.createVerticalStrut(10));
-
         card.add(buildMenuButton("Consulta fasce orarie disponibili", false, e -> {
             new FormConsultaFasceOrarie().setVisible(true);
             dispose();
         }));
         card.add(Box.createVerticalStrut(10));
-
         card.add(buildMenuButton("Profilo personale", false, e -> {
             mostraFunzioneProssimamente();
+        }));
+        card.add(Box.createVerticalStrut(10));
+        card.add(buildMenuButton("Logout", false, e -> {
+            Sessione.getInstance().chiudiSessione();
+            new FormLogin().setVisible(true);
+            dispose();
         }));
 
         root.add(card);
@@ -72,6 +87,7 @@ public class FormStudente extends BaseForm {
 
     // ── Helper ───────────────────────────────────────────────────────────────
 
+    /** Crea un pulsante di menu con stile e listener dati, a larghezza piena. */
     private RoundedButton buildMenuButton(String testo, boolean filled,
                                           java.awt.event.ActionListener listener) {
         RoundedButton btn = new RoundedButton(testo, filled);
@@ -81,6 +97,7 @@ public class FormStudente extends BaseForm {
         return btn;
     }
 
+    /** Mostra un avviso per le funzionalità non ancora implementate. */
     private void mostraFunzioneProssimamente() {
         JOptionPane.showMessageDialog(this,
                 "Questa funzione verrà aggiunta a breve...",

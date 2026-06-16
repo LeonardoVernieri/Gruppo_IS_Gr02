@@ -4,6 +4,14 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
+/**
+ * Form (boundary) di avvio dell'applicazione (splash screen).
+ * <p>
+ * Mostra logo, titolo e una barra di avanzamento animata; al termine
+ * dell'animazione si chiude e apre il {@link FormLogin}. Ha funzione puramente
+ * di presentazione iniziale: non interagisce con control né entità. Eredita
+ * aspetto e componenti grafici da {@link BaseForm}.
+ */
 public class FormSplash extends BaseForm {
 
     public FormSplash() {
@@ -20,11 +28,10 @@ public class FormSplash extends BaseForm {
         card.setBorder(new EmptyBorder(48, 48, 48, 48));
         card.setPreferredSize(new Dimension(380, 300));
 
-        // Icona / emoji
+        // Icona / emoji (con fallback se la risorsa non è presente)
         JLabel icona = new JLabel();
         icona.setHorizontalAlignment(SwingConstants.CENTER);
         icona.setAlignmentX(Component.CENTER_ALIGNMENT);
-
         java.net.URL urlIcona = getClass().getResource("/icons/logo.png");
         if (urlIcona != null) {
             ImageIcon iconaRaw = new ImageIcon(urlIcona);
@@ -32,7 +39,6 @@ public class FormSplash extends BaseForm {
                     .getScaledInstance(64, 64, Image.SCALE_SMOOTH);
             icona.setIcon(new ImageIcon(scaled));
         } else {
-            // fallback se la risorsa non viene trovata
             icona.setText("📚");
             icona.setFont(icona.getFont().deriveFont(48f));
         }
@@ -77,12 +83,13 @@ public class FormSplash extends BaseForm {
         setLocationRelativeTo(null);
         setVisible(true);
 
-        // ── Timer: anima la progress bar e poi apre il login ─────────────────
+        // ── Timer: anima la progress bar e, a completamento, apre il login ────
+        // Sul tick (ogni 20 ms) incrementa la barra e aggiorna il testo di stato;
+        // raggiunto il 100% si ferma, chiude la splash e apre FormLogin.
         Timer timer = new Timer(20, null);
         timer.addActionListener(e -> {
             int val = progressBar.getValue() + 1;
             progressBar.setValue(val);
-
             if (val >= 30)  lblStato.setText("Connessione al database...");
             if (val >= 70)  lblStato.setText("Quasi pronto...");
             if (val >= 100) {

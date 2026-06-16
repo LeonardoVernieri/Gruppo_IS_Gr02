@@ -1,38 +1,29 @@
 package boundary;
 
-import control.Sessione;
-import dto.FasciaOraria;
 import control.GestoreSaleStudio;
+import dto.FasciaOraria;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.*;
 import java.util.List;
 
-public class FormConsultaFasceOrarie extends JFrame {
-
-    // ── Palette (protected così la sottoclasse può usarla) ────────────────────
-// ── Palette ───────────────────────────────────────────────────────────────
-    protected static final Color BG_PAGE        = new Color(0xF7F7F6);
-    protected static final Color BG_CARD        = Color.WHITE;
-    protected static final Color BORDER_LIGHT   = new Color(0xEBEBEA);
-    protected static final Color BLUE_BG        = new Color(0xEEF2FF); // indaco chiaro
-    protected static final Color BLUE_BORDER    = new Color(0xA5B4FC); // indaco medio
-    protected static final Color BLUE_TEXT      = new Color(0x4338CA); // indaco scuro
-    protected static final Color GREEN_BG       = new Color(0xECFDF5);
-    protected static final Color GREEN_TEXT     = new Color(0x065F46);
-    protected static final Color AMBER_BG       = new Color(0xFEF3C7);
-    protected static final Color AMBER_TEXT     = new Color(0x92400E);
-    protected static final Color RED_BG         = new Color(0xFEE2E2);
-    protected static final Color RED_TEXT       = new Color(0x991B1B);
-    protected static final Color TEXT_PRIMARY   = new Color(0x111110);
-    protected static final Color TEXT_SECONDARY = new Color(0x52525B);
-    protected static final Color TEXT_TERTIARY  = new Color(0xA1A1AA);
-    protected static final double SOGLIA_QUASI_PIENO = 0.35;
+/**
+ * Form (boundary) per la consultazione delle fasce orarie disponibili di una
+ * sala studio in una data, con eventuale filtro per area.
+ * <p>
+ * Realizza il caso d'uso di visualizzazione della disponibilità: lo studente
+ * sceglie sala, giorno ed eventuale area, e il form mostra per ogni fascia il
+ * numero di postazioni libere. Delega ogni dato a {@link GestoreSaleStudio};
+ * non contiene logica di dominio né accede alla persistenza. Eredita aspetto e
+ * componenti grafici da {@link BaseForm} ed è pensato per essere esteso (es.
+ * {@code FormEffettuaPrenotazione}) tramite override di
+ * {@link #buildSlotRow(FasciaOraria, int, int)}.
+ */
+public class FormConsultaFasceOrarie extends BaseForm {
 
     // ── Stato (protected per consentire l'override di buildSlotRow) ───────────
     protected final GestoreSaleStudio gestoreSaleStudio;
@@ -45,43 +36,20 @@ public class FormConsultaFasceOrarie extends JFrame {
     protected JLabel hintLabel;
     protected JPanel panelConsultaFasceOrarie;
     protected JLabel labelTitolo;
-    protected JComboBox comboArea;
+    protected JComboBox<String> comboArea;
     protected JPanel areaSection;
 
     protected final List<DateButton> dateButtons = new ArrayList<>();
     protected LocalDate dataSelezionata = null;
     protected String nomeSala = null;
 
-
-    // Gestione font
-    protected static Font FONT_REGULAR;
-    protected static Font FONT_BOLD;
-
-    static {
-        try {
-            FONT_REGULAR = Font.createFont(Font.TRUETYPE_FONT,
-                            FormConsultaFasceOrarie.class.getResourceAsStream("/resources/Inter-Regular.ttf"))
-                    .deriveFont(13f);
-            FONT_BOLD = Font.createFont(Font.TRUETYPE_FONT,
-                            FormConsultaFasceOrarie.class.getResourceAsStream("/resources/Inter-Bold.ttf"))
-                    .deriveFont(Font.BOLD, 13f);
-            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(FONT_REGULAR);
-            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(FONT_BOLD);
-        } catch (Exception e) {
-            // fallback sicuro se il file non si trova
-            FONT_REGULAR = new Font("Segoe UI", Font.PLAIN, 13);
-            FONT_BOLD = new Font("Segoe UI", Font.BOLD, 13);
-        }
-    }
-    // ═════════════════════════════════════════════════════════════════════════
+    /** Costruisce il form, istanzia il controller e monta i pannelli (sala, data, area, fasce). */
     public FormConsultaFasceOrarie() {
+        super(); // eredita titolo, DISPOSE_ON_CLOSE, sfondo e resizable=false da BaseForm
         gestoreSaleStudio = new GestoreSaleStudio();
 
-        setTitle("Gestore sale studio");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(660, 700);
         setLocationRelativeTo(null);
-        setResizable(false);
 
         panelConsultaFasceOrarie = new JPanel();
         panelConsultaFasceOrarie.setLayout(new BoxLayout(panelConsultaFasceOrarie, BoxLayout.Y_AXIS));
@@ -97,13 +65,11 @@ public class FormConsultaFasceOrarie extends JFrame {
         panelConsultaFasceOrarie.add(Box.createVerticalStrut(20));
 
         // Bottone torna
-        // root.add(Box.createVerticalStrut(8));
         RoundedButton btnTorna = new RoundedButton("← Torna al menu", true);
         btnTorna.setAlignmentX(Component.LEFT_ALIGNMENT);
         btnTorna.addActionListener(e -> { new FormStudente(); dispose(); });
         panelConsultaFasceOrarie.add(btnTorna);
         panelConsultaFasceOrarie.add(Box.createVerticalStrut(20));
-
 
         // Sala
         panelConsultaFasceOrarie.add(buildSectionLabel("Sala"));
@@ -124,7 +90,6 @@ public class FormConsultaFasceOrarie extends JFrame {
         // Aree
         panelConsultaFasceOrarie.add(buildAreaSection());
         panelConsultaFasceOrarie.add(Box.createVerticalStrut(5));
-
 
         // Fasce orarie
         fasceHeaderLabel = buildSectionLabel("Fasce orarie");
@@ -177,30 +142,24 @@ public class FormConsultaFasceOrarie extends JFrame {
     }
 
     private JPanel buildAreaSection(){
-
-        // Costruisco sezione per la scelta dell'area
         areaSection = new JPanel();
         areaSection.setLayout(new BoxLayout(areaSection, BoxLayout.Y_AXIS));
         areaSection.setOpaque(false);
         areaSection.setAlignmentX(Component.LEFT_ALIGNMENT);
         areaSection.setVisible(false);
 
-        // Label per il titolo dell'area
         areaSection.add(buildSectionLabel("Area (opzionale)"));
         areaSection.add(Box.createVerticalStrut(8));
 
-        // Creo il JComboBox
         comboArea = new JComboBox<>();
-        comboArea.addItem("Nesssuna preferenza");
+        comboArea.addItem("Nessuna preferenza");
         comboArea.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         comboArea.setAlignmentX(Component.LEFT_ALIGNMENT);
-        comboArea.setFont(comboArea.getFont().deriveFont(13f));
+        comboArea.setFont(FONT_REGULAR);
         comboArea.setBackground(BG_CARD);
-
-        comboArea.addActionListener(e ->
-                {
-                    if (dataSelezionata != null) aggiornaFasce();
-                });
+        comboArea.addActionListener(e -> {
+            if (dataSelezionata != null) aggiornaFasce();
+        });
 
         areaSection.add(comboArea);
         areaSection.add(Box.createVerticalStrut(16));
@@ -228,8 +187,14 @@ public class FormConsultaFasceOrarie extends JFrame {
 
     // ── Logica eventi ─────────────────────────────────────────────────────────
 
+    /**
+     * Gestisce la selezione di una sala dalla combo.
+     * <p>
+     * Se è selezionato il placeholder, nasconde le sezioni dipendenti e mostra
+     * l'hint iniziale. Altrimenti memorizza la sala scelta, genera i pulsanti
+     * data, rende visibile la sezione area e ne ricarica le voci.
+     */
     protected void onSalaSelezionata() {
-
         if (comboSale.getSelectedIndex() == 0) {
             dateScrollPane.setVisible(false);
             fasceScrollPane.setVisible(false);
@@ -250,9 +215,14 @@ public class FormConsultaFasceOrarie extends JFrame {
         revalidate(); repaint();
 
         aggiornaComboAree();
-
     }
 
+    /**
+     * Genera i pulsanti dei dieci giorni a partire da oggi.
+     * <p>
+     * Alla pressione di un giorno, deseleziona gli altri, memorizza la data
+     * scelta e ricarica le fasce orarie corrispondenti.
+     */
     protected void buildDateButtons() {
         datePanelInner.removeAll();
         dateButtons.clear();
@@ -279,11 +249,18 @@ public class FormConsultaFasceOrarie extends JFrame {
         datePanelInner.repaint();
     }
 
+    /**
+     * Ricarica l'elenco delle fasce orarie per la sala, la data e l'area
+     * correntemente selezionate, interrogando {@link GestoreSaleStudio}.
+     * <p>
+     * Per ogni fascia mostra i posti liberi sul totale (dell'area se selezionata,
+     * altrimenti dell'intera sala) tramite {@link #buildSlotRow}. Se non vi sono
+     * fasce, mostra un messaggio di assenza disponibilità.
+     */
     protected void aggiornaFasce() {
         fascePanelInner.removeAll();
 
-
-        // Leggo l'area selezionata (null = nessuna preferenza)
+        // Area selezionata (null = nessuna preferenza)
         String areaSelezionata = (comboArea != null && comboArea.getSelectedIndex() > 0)
                 ? (String) comboArea.getSelectedItem()
                 : null;
@@ -293,14 +270,14 @@ public class FormConsultaFasceOrarie extends JFrame {
         );
         fasceDisponibili.putAll(gestoreSaleStudio.getNumPostazioniDisponibili(nomeSala, dataSelezionata, areaSelezionata));
 
-        // totale postazioni: dell'area se selezionata, altrimenti della sala
+        // Totale: dell'area se selezionata, altrimenti della sala
         int totale = (areaSelezionata != null)
                 ? gestoreSaleStudio.getNumPostazioniArea(nomeSala, areaSelezionata)
                 : gestoreSaleStudio.getNumPostazioniSala(nomeSala);
 
         if (fasceDisponibili.isEmpty()) {
             JLabel vuoto = new JLabel("Nessuna fascia oraria disponibile per questa data.");
-            vuoto.setFont(vuoto.getFont().deriveFont(13f));
+            vuoto.setFont(FONT_REGULAR);
             vuoto.setForeground(TEXT_TERTIARY);
             vuoto.setAlignmentX(Component.LEFT_ALIGNMENT);
             fascePanelInner.add(vuoto);
@@ -332,6 +309,7 @@ public class FormConsultaFasceOrarie extends JFrame {
         repaint();
     }
 
+    /** Ricarica le voci della combo aree in base alla sala selezionata. */
     private void aggiornaComboAree() {
         if (comboArea == null) return;
         comboArea.removeAllItems();
@@ -340,9 +318,18 @@ public class FormConsultaFasceOrarie extends JFrame {
         for (String area : aree) comboArea.addItem(area);
     }
 
-    // ── Componenti UI ─────────────────────────────────────────────────────────
+    // ── Riga fascia (override nella sottoclasse) ──────────────────────────────
 
-    /** Protected: la sottoclasse fa override per aggiungere il bottone di selezione. */
+    /**
+     * Costruisce la riga di una fascia oraria: orario a sinistra, conteggio posti
+     * e pill di stato a destra. È {@code protected} per consentire alla
+     * sottoclasse di estenderla aggiungendo il controllo di selezione.
+     *
+     * @param fascia fascia oraria da rappresentare
+     * @param liberi posti liberi nella fascia
+     * @param totale posti complessivi di riferimento
+     * @return il pannello-riga pronto da inserire nella card
+     */
     protected JPanel buildSlotRow(FasciaOraria fascia, int liberi, int totale) {
         JPanel row = new JPanel(new BorderLayout(12, 0));
         row.setOpaque(false);
@@ -365,230 +352,5 @@ public class FormConsultaFasceOrarie extends JFrame {
 
         row.add(destra, BorderLayout.EAST);
         return row;
-    }
-
-    protected JLabel buildBadgePill(int liberi, int totale) {
-        String testo;
-        Color bg, fg;
-
-        if (liberi == 0) {
-            testo = "esaurito";    bg = RED_BG;   fg = RED_TEXT;
-        } else if ((double) liberi / totale <= SOGLIA_QUASI_PIENO) {
-            testo = "quasi pieno"; bg = AMBER_BG; fg = AMBER_TEXT;
-        } else {
-            testo = "disponibile"; bg = GREEN_BG; fg = GREEN_TEXT;
-        }
-        return new PillLabel(testo, bg, fg);
-    }
-
-    protected JSeparator buildInternalDivider() {
-        JSeparator sep = new JSeparator();
-        sep.setForeground(BORDER_LIGHT);
-        sep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
-        return sep;
-    }
-
-    protected JSeparator buildDivider() {
-        JSeparator sep = new JSeparator();
-        sep.setForeground(BORDER_LIGHT);
-        sep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
-        return sep;
-    }
-
-    protected JLabel buildSectionLabel(String testo) {
-        JLabel lbl = new JLabel(testo.toUpperCase());
-        lbl.setFont(FONT_REGULAR.deriveFont(10.5f));
-        lbl.setForeground(TEXT_TERTIARY);
-        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
-        return lbl;
-    }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    // Componenti custom (protected per riuso nella sottoclasse)
-    // ═════════════════════════════════════════════════════════════════════════
-
-    protected static class DateButton extends JButton {
-        private boolean selected = false;
-        private boolean hovered = false;
-        private final String giorno;
-        private final String numero;
-
-        DateButton(String giorno, int numero) {
-            super();
-            this.giorno = giorno;
-            this.numero = String.valueOf(numero);
-            setPreferredSize(new Dimension(52, 60));
-            setFocusPainted(false);
-            setContentAreaFilled(false);
-            setBorderPainted(false);
-            setOpaque(false);
-            setFont(FONT_REGULAR);
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-            addMouseListener(new java.awt.event.MouseAdapter() {
-                @Override
-                public void mouseEntered(java.awt.event.MouseEvent e) {
-                    System.out.println("entered");
-                    hovered = true;
-                    repaint();
-                }
-                @Override
-                public void mouseExited(java.awt.event.MouseEvent e) {
-                    System.out.println("exited");
-                    hovered = false;
-                    repaint();
-                }
-            });
-        }
-
-        public void setSelected(boolean sel) {
-            this.selected = sel;
-            repaint();
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-            if (selected) {
-                g2.setColor(BLUE_BG);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                g2.setColor(BLUE_BORDER);
-                g2.setStroke(new BasicStroke(1f));
-                g2.draw(new RoundRectangle2D.Float(0.5f, 0.5f, getWidth() - 1, getHeight() - 1, 10, 10));
-            } else {
-                Color sfondo = hovered ? new Color(0xEEF2FF) : BG_CARD;
-                Color bordo  = hovered ? new Color(0x6366F1) : BORDER_LIGHT;
-
-                g2.setColor(sfondo);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                g2.setColor(bordo);
-                g2.setStroke(new BasicStroke(0.8f));
-                g2.draw(new RoundRectangle2D.Float(0.5f, 0.5f, getWidth() - 1, getHeight() - 1, 10, 10));
-            }
-
-            Color colTertiary = selected ? new Color(0x185FA5) : TEXT_TERTIARY;
-            Color colPrimary  = selected ? BLUE_TEXT : TEXT_PRIMARY;
-            int cx = getWidth() / 2;
-
-            Font fontSmall = getFont().deriveFont(Font.PLAIN, 10.5f);
-            Font fontBig   = getFont().deriveFont(Font.BOLD, 16f);
-            FontMetrics fmSmall = g2.getFontMetrics(fontSmall);
-            FontMetrics fmBig   = g2.getFontMetrics(fontBig);
-
-            int totalH = fmSmall.getAscent() + 3 + fmBig.getAscent();
-            int startY = (getHeight() - totalH) / 2 + fmSmall.getAscent();
-
-            g2.setFont(fontSmall);
-            g2.setColor(colTertiary);
-            g2.drawString(giorno, cx - fmSmall.stringWidth(giorno) / 2, startY);
-
-            g2.setFont(fontBig);
-            g2.setColor(colPrimary);
-            g2.drawString(numero, cx - fmBig.stringWidth(numero) / 2, startY + 3 + fmBig.getAscent());
-
-            g2.dispose();
-        }
-    }
-
-    protected static class RoundedCard extends JPanel {
-        RoundedCard() {
-            setOpaque(false);
-            setBorder(new EmptyBorder(0, 0, 0, 0));
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(BG_CARD);
-            g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
-            g2.setColor(BORDER_LIGHT);
-            g2.setStroke(new BasicStroke(0.8f));
-            g2.draw(new RoundRectangle2D.Float(0.5f, 0.5f, getWidth() - 1, getHeight() - 1, 12, 12));
-            g2.dispose();
-            super.paintComponent(g);
-        }
-    }
-
-    protected static class PillLabel extends JLabel {
-        private final Color bg;
-
-        PillLabel(String testo, Color bg, Color fg) {
-            super(testo);
-            this.bg = bg;
-            setForeground(fg);
-            setFont(FONT_REGULAR);
-            setBorder(new EmptyBorder(3, 10, 3, 10));
-            setOpaque(false);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(bg);
-            g2.fillRoundRect(0, 0, getWidth(), getHeight(), getHeight(), getHeight());
-            g2.dispose();
-            super.paintComponent(g);
-        }
-    }
-
-    protected static class RoundedButton extends JButton {
-
-        private boolean hovered = false;
-        private final boolean filled; // ← nuovo
-
-        RoundedButton(String testo) {
-            this(testo, false); // default: stile outline
-        }
-        RoundedButton(String testo, boolean filled) {
-            super(testo);
-            this.filled = filled;
-            setFocusPainted(false);
-            setContentAreaFilled(false);
-            setBorderPainted(false);
-            setOpaque(false);
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            setFont(FONT_REGULAR.deriveFont(11f));
-            setBorder(new EmptyBorder(7, 16, 7, 16));
-            if (filled) setForeground(Color.WHITE); // testo bianco
-
-            addMouseListener(new java.awt.event.MouseAdapter() {
-                @Override
-                public void mouseEntered(java.awt.event.MouseEvent e) {
-                    hovered = true; repaint();
-                }
-                @Override
-                public void mouseExited(java.awt.event.MouseEvent e) {
-                    hovered = false; repaint();
-                }
-            });
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            Color sfondo, bordo;
-            if (filled) {
-                sfondo = hovered ? new Color(0x4F46E5) : new Color(0x6366F1); // filled indaco
-                bordo  = sfondo;
-            } else {
-                sfondo = hovered ? new Color(0xEEF2FF) : BG_CARD;             // outline originale
-                bordo  = hovered ? new Color(0x6366F1) : BORDER_LIGHT;
-            }
-
-            g2.setColor(sfondo);
-            g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), getHeight(), getHeight()));
-            g2.setColor(bordo);
-            g2.setStroke(new BasicStroke(0.8f));
-            g2.draw(new RoundRectangle2D.Float(0.5f, 0.5f, getWidth() - 1, getHeight() - 1, getHeight(), getHeight()));
-            g2.dispose();
-            super.paintComponent(g);
-        }
     }
 }

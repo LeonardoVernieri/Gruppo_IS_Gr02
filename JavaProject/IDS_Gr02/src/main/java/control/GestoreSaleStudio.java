@@ -3,9 +3,10 @@ package control;
 import dto.FasciaOraria;
 import entity.Area;
 import entity.Bibliotecario;
-import entity.CatalogoSalaStudio;
+import entity.CatalogoSaleStudio;
 import entity.SalaStudio;
 
+import javax.swing.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -14,10 +15,10 @@ import java.util.Map;
 
 public class GestoreSaleStudio {
 
-    private CatalogoSalaStudio catalogoSala;
+    private CatalogoSaleStudio catalogoSala;
 
     public GestoreSaleStudio() {
-        catalogoSala = new CatalogoSalaStudio();
+        catalogoSala = new CatalogoSaleStudio();
     }
 
     /**
@@ -119,8 +120,10 @@ public class GestoreSaleStudio {
                                              List<String> col1,
                                              List<Integer> col2) {
         Bibliotecario bibliotecario = new Bibliotecario();
-        return bibliotecario.creaSalaStudio(nome, descrizione, numeroPostazioniTotali,
+        boolean esito = bibliotecario.creaSalaStudio(nome, descrizione, numeroPostazioniTotali,
                 orarioApertura, orarioChiusura,
                 presenzaAree, col1, col2);
+        if(!esito)   JOptionPane.showMessageDialog(null, "L'orario di apertura non può essere successivo o uguale a quello di chiusura");
+        return esito;
     }
 }

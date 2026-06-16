@@ -9,11 +9,23 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.List;
 
+/**
+ * Form (boundary) per l'effettuazione del check-in su una prenotazione attiva.
+ * <p>
+ * Mostra allo studente le sue prenotazioni attive odierne e gli consente di
+ * confermare la presenza su quella selezionata. Delega la logica a
+ * {@link GestorePrenotazioni}; non contiene regole di dominio né accede alla
+ * persistenza. Eredita aspetto e componenti grafici da {@link BaseForm}.
+ */
 public class FormCheckIn extends BaseForm {
 
     private final JList<Prenotazione>    listaPrenotazioni;
     private final GestorePrenotazioni    gestorePrenotazioni;
 
+    /**
+     * Costruisce il form, recupera le prenotazioni attive dello studente in
+     * sessione e le presenta in una lista selezionabile.
+     */
     public FormCheckIn() {
         super();
 
@@ -52,7 +64,7 @@ public class FormCheckIn extends BaseForm {
 
         card.add(headerPanel, BorderLayout.NORTH);
 
-        // Lista prenotazioni
+        // Popola la lista con le prenotazioni attive dello studente in sessione
         listaPrenotazioni = new JList<>();
         listaPrenotazioni.setFont(FONT_REGULAR);
         listaPrenotazioni.setBackground(BG_CARD);
@@ -61,26 +73,35 @@ public class FormCheckIn extends BaseForm {
         listaPrenotazioni.setSelectionForeground(BLUE_TEXT);
         listaPrenotazioni.setFixedCellHeight(40);
         listaPrenotazioni.setBorder(new EmptyBorder(4, 8, 4, 8));
-
-        // Popola la lista
         List<Prenotazione> prenotazioni = gestorePrenotazioni
                 .cercaPrenotazioniAttive(Sessione.getInstance().getStudenteCorrente());
-        DefaultListModel<Prenotazione> model = new DefaultListModel<>();
-        for (Prenotazione p : prenotazioni) model.addElement(p);
-        listaPrenotazioni.setModel(model);
 
-        JScrollPane scrollPane = new JScrollPane(listaPrenotazioni,
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setBorder(BorderFactory.createLineBorder(BORDER_LIGHT, 1));
-        scrollPane.setOpaque(false);
-        scrollPane.setPreferredSize(new Dimension(380, 320));
+        if (prenotazioni.isEmpty()) {
+            // Empty state: nessuna prenotazione attiva per oggi
+            JLabel emptyLabel = new JLabel("Non hai prenotazioni attive per la giornata di oggi");
+            emptyLabel.setFont(FONT_REGULAR.deriveFont(13f));
+            emptyLabel.setForeground(TEXT_TERTIARY);
+            emptyLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            emptyLabel.setBorder(new EmptyBorder(40, 0, 40, 0));
+            card.add(emptyLabel, BorderLayout.CENTER);
+        } else {
+            DefaultListModel<Prenotazione> model = new DefaultListModel<>();
+            for (Prenotazione p : prenotazioni) model.addElement(p);
+            listaPrenotazioni.setModel(model);
 
-        JScrollBar vsb = scrollPane.getVerticalScrollBar();
-        vsb.setPreferredSize(new Dimension(6, 0));
-        vsb.setUI(new SlimScrollBarUI());
+            JScrollPane scrollPane = new JScrollPane(listaPrenotazioni,
+                    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            scrollPane.setBorder(BorderFactory.createLineBorder(BORDER_LIGHT, 1));
+            scrollPane.setOpaque(false);
+            scrollPane.setPreferredSize(new Dimension(380, 320));
 
-        card.add(scrollPane, BorderLayout.CENTER);
+            JScrollBar vsb = scrollPane.getVerticalScrollBar();
+            vsb.setPreferredSize(new Dimension(6, 0));
+            vsb.setUI(new SlimScrollBarUI());
+
+            card.add(scrollPane, BorderLayout.CENTER);
+        }
 
         // Bottoni
         JPanel bottomPanel = new JPanel();
@@ -89,12 +110,17 @@ public class FormCheckIn extends BaseForm {
         bottomPanel.add(buildDivider());
         bottomPanel.add(Box.createVerticalStrut(12));
 
-        RoundedButton btnCheckIn = new RoundedButton("Effettua Check-In", true);
+        RoundedButton btnCheckIn = new RoundedButton("Effettua Check-Ien", true);
         btnCheckIn.setAlignmentX(Component.LEFT_ALIGNMENT);
         btnCheckIn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
         btnCheckIn.addActionListener(e -> eseguiCheckIn());
         bottomPanel.add(btnCheckIn);
         bottomPanel.add(Box.createVerticalStrut(10));
+        if(prenotazioni.isEmpty()) {
+            btnCheckIn.setVisible(false);
+        } else {
+            btnCheckIn.setVisible(true);
+        }
 
         RoundedButton btnAnnulla = new RoundedButton("Annulla", false);
         btnAnnulla.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -110,8 +136,16 @@ public class FormCheckIn extends BaseForm {
         setVisible(true);
     }
 
-    // ── Logica (invariata) ────────────────────────────────────────────────────
+    // ── Logica ────────────────────────────────────────────────────────────────
 
+    /**
+     * Esegue il check-in sulla prenotazione selezionata.
+     * <p>
+     * Verifica che una prenotazione sia selezionata e non scaduta, chiede
+     * conferma all'utente e, in caso affermativo, delega il check-in a
+     * {@link GestorePrenotazioni#effettuaCheckIn(Prenotazione)}, tornando poi al
+     * menu studente.
+     */
     private void eseguiCheckIn() {
         Prenotazione selezionata = listaPrenotazioni.getSelectedValue();
         if (selezionata == null) {

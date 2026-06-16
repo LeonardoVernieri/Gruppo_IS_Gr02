@@ -6,6 +6,15 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
+/**
+ * Classe base astratta dei form Swing dell'applicazione.
+ * <p>
+ * Raccoglie la palette, i font e i componenti grafici custom condivisi dalle
+ * interfacce, così che i form concreti ne ereditino aspetto e helper comuni.
+ * Contiene esclusivamente logica di presentazione: non accede a control,
+ * entità o persistenza.
+ */
+
 public abstract class BaseForm extends JFrame {
 
     // ── Palette ───────────────────────────────────────────────────────────────
@@ -30,6 +39,12 @@ public abstract class BaseForm extends JFrame {
     protected static final Font FONT_REGULAR;
     protected static final Font FONT_BOLD;
 
+    /*
+     * Carica i font Inter dalle risorse e li registra nell'ambiente grafico.
+     * Se il caricamento fallisce (risorsa assente o illeggibile), ricade su un
+     * font di sistema, così che la UI resti utilizzabile in ogni caso.
+     */
+
     static {
         Font regular, bold;
         try {
@@ -50,20 +65,6 @@ public abstract class BaseForm extends JFrame {
     }
 
     // ── Costruttore ───────────────────────────────────────────────────────────
-    protected BaseForm(int width, int height) {
-
-        java.net.URL urlIcona = getClass().getResource("/icons/logo.png");
-        if (urlIcona != null) {
-            setIconImage(new ImageIcon(urlIcona).getImage());
-        }
-
-        setTitle("Gestore sale studio");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setResizable(false);
-        getContentPane().setBackground(BG_PAGE);
-    }
-
     protected BaseForm() {
 
         java.net.URL urlIcona = getClass().getResource("/icons/logo.png");
@@ -72,7 +73,7 @@ public abstract class BaseForm extends JFrame {
         }
 
         setTitle("Gestore sale studio");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         getContentPane().setBackground(BG_PAGE);
     }
@@ -117,6 +118,16 @@ public abstract class BaseForm extends JFrame {
         tf.setAlignmentX(Component.LEFT_ALIGNMENT);
     }
 
+    /**
+     * Costruisce l'etichetta di stato (pill) che riassume visivamente la
+     * disponibilità di una sala o area in base al rapporto liberi/totale:
+     * "esaurito" se non vi sono posti liberi, "quasi pieno" sotto la soglia
+     * {@link #SOGLIA_QUASI_PIENO}, "disponibile" altrimenti.
+     *
+     * @param liberi posti attualmente liberi
+     * @param totale posti complessivi
+     * @return la pill colorata corrispondente allo stato di disponibilità
+     */
     protected JLabel buildBadgePill(int liberi, int totale) {
         String testo;
         Color bg, fg;

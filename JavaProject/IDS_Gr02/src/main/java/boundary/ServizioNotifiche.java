@@ -66,7 +66,7 @@ public class ServizioNotifiche {
                     InternetAddress.parse(destinatario));
             msg.setSubject("Conferma prenotazione sala studio");
             msg.setText("Gentile studente,\n\n"
-                    + "la tua prenotazione è stata registrata:\n"
+                    + "la tua prenotazione e' stata registrata:\n"
                     + "Sala: " + nomeSala + "\n"
                     + "Data: " + data + "\n"
                     + "Fascia oraria: " + fascia + "\n\n"

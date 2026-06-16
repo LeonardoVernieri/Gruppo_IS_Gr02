@@ -12,6 +12,15 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Form (boundary) per la creazione di una nuova sala studio da parte del
+ * bibliotecario.
+ * <p>
+ * Raccoglie i dati della sala (nome, descrizione, postazioni, orari ed eventuali
+ * aree con relative postazioni), valida l'input e delega la creazione a
+ * {@link GestoreSaleStudio}. Non contiene logica di dominio né accede alla
+ * persistenza. Eredita aspetto e componenti grafici da {@link BaseForm}.
+ */
 public class FormCreaSala extends BaseForm {
 
     // ── Campi form ────────────────────────────────────────────────────────────
@@ -156,6 +165,7 @@ public class FormCreaSala extends BaseForm {
 
     // ── Pannello aree ─────────────────────────────────────────────────────────
 
+    /** Costruisce il pannello di gestione aree (aggiunta, tabella e rimozione righe). */
     private JPanel buildPanelAree() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -260,6 +270,16 @@ public class FormCreaSala extends BaseForm {
 
     // ── Logica (invariata) ────────────────────────────────────────────────────
 
+    /**
+     * Valida i dati inseriti e, se corretti, crea la sala studio.
+     * <p>
+     * Esegue i controlli di formato lato boundary: numero di postazioni intero e
+     * positivo, nome e descrizione non vuoti, postazioni per area non negative e
+     * somma delle postazioni delle aree non superiore al totale della sala. Se
+     * tutti i controlli passano, delega la creazione a
+     * {@link GestoreSaleStudio#aggiungiSalaStudio}. Al termine torna al menu
+     * bibliotecario.
+     */
     public void salvaDati() {
         String nome        = nomeSala.getText();
         String desc        = descrizione.getText();
@@ -319,6 +339,7 @@ public class FormCreaSala extends BaseForm {
 
     // ── Helper ────────────────────────────────────────────────────────────────
 
+    /** Crea una combo di orari a intervalli di 30 minuti dalle 06:00 alle 22:30. */
     private JComboBox<String> buildComboOrari() {
         JComboBox<String> combo = new JComboBox<>();
         for (int h = 6; h <= 22; h++) {

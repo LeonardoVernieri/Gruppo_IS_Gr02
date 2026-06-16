@@ -9,6 +9,15 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
+/**
+ * Form (boundary) di accesso al sistema.
+ * <p>
+ * Raccoglie le credenziali e delega l'autenticazione a {@link GestoreAccesso};
+ * in base al ruolo dell'utente autenticato apre la sessione tramite
+ * {@link Sessione} e instrada verso il form corrispondente (studente o
+ * bibliotecario). Consente inoltre l'accesso alla registrazione. Eredita aspetto
+ * e componenti grafici da {@link BaseForm}.
+ */
 public class FormLogin extends BaseForm {
 
     private JTextField     emailField;
@@ -18,7 +27,7 @@ public class FormLogin extends BaseForm {
     private final GestoreAccesso gestoreAccesso = new GestoreAccesso();
 
     public FormLogin() {
-        super(400, 460);
+        super();
 
         // ── Root ─────────────────────────────────────────────────────────────
         JPanel root = new JPanel(new GridBagLayout());
@@ -89,8 +98,17 @@ public class FormLogin extends BaseForm {
         setVisible(true);
     }
 
-    // ── Logica (invariata) ────────────────────────────────────────────────────
+    // ── Logica ────────────────────────────────────────────────────────────────
 
+    /**
+     * Esegue il tentativo di login con le credenziali inserite.
+     * <p>
+     * Se l'accesso è bloccato per troppi tentativi, avvisa e chiude. Altrimenti
+     * delega a {@link GestoreAccesso#loginUtente}: in caso di esito negativo
+     * mostra un messaggio d'errore (distinguendo il blocco dalle credenziali
+     * errate), in caso positivo apre la sessione del ruolo corrispondente e apre
+     * il form adeguato.
+     */
     private void eseguiLogin() {
         if (gestoreAccesso.isBloccato()) {
             JOptionPane.showMessageDialog(null, "Tentativi massimi raggiunti");
@@ -127,6 +145,7 @@ public class FormLogin extends BaseForm {
         }
     }
 
+    /** Apre il form di registrazione e chiude quello di login. */
     private void apriRegistrazione() {
         new FormRegistrazione(this).setVisible(true);
         dispose();

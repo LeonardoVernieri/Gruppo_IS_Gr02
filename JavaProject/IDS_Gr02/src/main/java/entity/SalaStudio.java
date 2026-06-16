@@ -7,15 +7,25 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
+/**
+ * Entità di dominio che rappresenta una sala studio.
+ * <p>
+ * La {@code SalaStudio} è Information Expert della propria struttura: aggrega le
+ * {@link Postazione} che contiene e le eventuali {@link Area} in cui è
+ * suddivisa, ed è la sorgente delle {@link FasciaOraria} prenotabili, generate
+ * dinamicamente dagli orari di apertura e chiusura. Calcola inoltre la
+ * disponibilità di posti delegando alle singole postazioni, coerentemente con
+ * la natura derivata della disponibilità.
+ */
 @Entity
-public class SalaStudio{
+public class SalaStudio {
 
+    /** Accesso alla persistenza per le interrogazioni su aree e postazioni; non persistito. */
     @Transient
-    private GestorePersistenza gestorePersistenza;
+    private GestorePersistenza gestorePersistenza = new GestorePersistenza();
 
-
+    /** Identificatore tecnico, auto-generato dal database. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -25,26 +35,44 @@ public class SalaStudio{
     private int numeroPostazioni;
     private LocalTime orarioApertura;
     private LocalTime orarioChiusura;
+
+    /** Indica se la sala è suddivisa in aree distinte. */
     private boolean presenzaAree;
 
+    /** Aree in cui la sala è eventualmente suddivisa; ciclo di vita legato alla sala. */
     @OneToMany(mappedBy = "salaStudio", cascade = CascadeType.ALL)
     private List<Area> aree = new ArrayList<>();
 
-    // Associazione con bibliotecari
+    /** Bibliotecari che gestiscono la sala; {@code Set} per evitare duplicati. */
     @ManyToMany
-    private Set<Bibliotecario> bibliotecari = new HashSet<>(); // Set evita duplicati
+    private Set<Bibliotecario> bibliotecari = new HashSet<>();
 
+    /** Postazioni contenute nella sala; ciclo di vita legato alla sala. */
     @OneToMany(mappedBy = "salaStudio", cascade = CascadeType.ALL)
     private List<Postazione> postazioni = new ArrayList<>();
 
-    @PostLoad
-    public void init(){
-        gestorePersistenza = new GestorePersistenza();
-    }
-
+    /** Costruttore richiesto da JPA. */
     public SalaStudio(){}
 
-    public SalaStudio(String nome, String descrizione, int numeroPostazioni, LocalTime orarioApertura, LocalTime orarioChiusura,  boolean presenzaAree, List<String> col1, List<Integer> col2) {
+    /**
+     * Crea una sala studio completa della propria struttura interna.
+     * <p>
+     * Pattern Creator (GRASP): la sala è Creator delle proprie {@link Postazione}
+     * e {@link Area}. Genera prima tutte le postazioni, poi, se previste le aree,
+     * le crea assegnando a ciascuna un blocco contiguo di postazioni in base al
+     * conteggio indicato. Il cascade {@code ALL} fa sì che postazioni e aree
+     * vengano persistite insieme alla sala.
+     *
+     * @param nome             nome della sala
+     * @param descrizione      descrizione della sala
+     * @param numeroPostazioni numero totale di postazioni da generare
+     * @param orarioApertura   orario di apertura giornaliero
+     * @param orarioChiusura   orario di chiusura giornaliero
+     * @param presenzaAree     {@code true} se la sala è suddivisa in aree
+     * @param nomiAree             nomi/tipologie delle aree
+     * @param postazioniPerArea             numero di postazioni assegnate a ciascuna area
+     */
+    public SalaStudio(String nome, String descrizione, int numeroPostazioni, LocalTime orarioApertura, LocalTime orarioChiusura,  boolean presenzaAree, List<String> nomiAree, List<Integer> postazioniPerArea) {
         this.nome = nome;
         this.descrizione = descrizione;
         this.numeroPostazioni = numeroPostazioni;
@@ -52,7 +80,6 @@ public class SalaStudio{
         this.orarioChiusura = orarioChiusura;
         this.presenzaAree = presenzaAree;
         this.aree = new ArrayList<>();
-        init();
 
         // Creo postazioni
         for( int i=0 ; i<numeroPostazioni; i++){
@@ -62,49 +89,22 @@ public class SalaStudio{
 
         // Crea aree
         int offset = 0;
-        for (int i = 0; i < col1.size(); i++) {
-            int count = col2.get(i);
-            Area area = new Area(col1.get(i), count, this);
+        for (int i = 0; i < nomiAree.size(); i++) {
+            int count = postazioniPerArea.get(i);
+            Area area = new Area(nomiAree.get(i), count, this);
             this.aree.add(area);
 
-            // Prendo una subList delle postazioni che non stato assegnate
+            // Prendo una subList delle postazioni non ancora assegnate
             this.postazioni.subList(offset, offset + count)
                     .forEach(p -> p.setArea(area));
             offset += count;
-            }
         }
+    }
 
-
-    // Setter
     public void setNome(String nome) {
         this.nome = nome;
     }
 
-    public void setDescrizione(String descrizione) {
-        this.descrizione = descrizione;
-    }
-
-    public void setNumeroPostazioni(int numeroPostazioni) {
-        this.numeroPostazioni = numeroPostazioni;
-    }
-
-    public void setOrarioApertura(LocalTime orarioApertura) {
-        this.orarioApertura = orarioApertura;
-    }
-
-    public void setOrarioChiusura(LocalTime orarioChiusura) {
-        this.orarioChiusura = orarioChiusura;
-    }
-
-    public void setPresenzaAree(boolean presenzaAree) {
-        this.presenzaAree = presenzaAree;
-    }
-
-    public void setAree(List<Area> aree) {
-        this.aree = aree;
-    }
-
-    // Getter
     public String getNome() {
         return nome;
     }
@@ -113,15 +113,31 @@ public class SalaStudio{
         return numeroPostazioni;
     }
 
+    /**
+     * Restituisce le aree della sala interrogando la persistenza.
+     *
+     * @return le {@link Area} associate alla sala
+     */
     public List<Area> getAree() {
         return gestorePersistenza.cercaPerCampo(Area.class, "salaStudio", this);
     }
 
+    /**
+     * Recupera una specifica area della sala dalla sua tipologia.
+     *
+     * @param tipologiaArea tipologia dell'area cercata
+     * @return l'{@link Area} corrispondente, oppure {@code null} se non esiste
+     */
     public Area getArea(String tipologiaArea) {
         return gestorePersistenza.cercaPrimoPerCampi(Area.class, Map.of("tipologia", tipologiaArea, "salaStudio", this));
     }
 
-    // Metodi
+    /**
+     * Restituisce le postazioni della sala, eventualmente filtrate per area.
+     *
+     * @param area area di interesse, oppure {@code null} per tutte le postazioni della sala
+     * @return le {@link Postazione} corrispondenti
+     */
     public List<Postazione> getPostazioni(Area area) {
         if(area == null){
             return gestorePersistenza.cercaPerCampi(Postazione.class, Map.of("salaStudio", this));
@@ -130,6 +146,14 @@ public class SalaStudio{
         }
     }
 
+    /**
+     * Genera dinamicamente le fasce orarie prenotabili della sala.
+     * <p>
+     * Le fasce sono slot di un'ora costruiti a partire dall'orario di apertura
+     * fino all'orario di chiusura; non sono memorizzate ma calcolate a richiesta.
+     *
+     * @return l'elenco ordinato delle {@link FasciaOraria} della giornata
+     */
     public List<FasciaOraria>  getFasceOrarie() {
         List<FasciaOraria> fasce = new ArrayList<>();
         LocalTime corrente = this.orarioApertura;
@@ -141,7 +165,15 @@ public class SalaStudio{
         return fasce;
     }
 
-    // Ritorna il numero di postiLiberi per una data e una fascia oraria
+    /**
+     * Conta le postazioni libere in una fascia e giorno dati, eventualmente
+     * ristrette a una tipologia di area.
+     *
+     * @param f             fascia oraria di interesse
+     * @param data          giorno di interesse
+     * @param tipologiaArea tipologia di area, oppure {@code null} per l'intera sala
+     * @return numero di postazioni disponibili
+     */
     public int getPostiLiberi(FasciaOraria f, LocalDate data, String tipologiaArea) {
         int count = 0;
 
@@ -157,6 +189,18 @@ public class SalaStudio{
         return count;
     }
 
+    /**
+     * Cerca la prima postazione libera per una fascia e giorno dati.
+     * <p>
+     * Senza tipologia di area, privilegia le postazioni non assegnate ad alcuna
+     * area; se non ve ne sono, ricade sull'intero insieme. Con una tipologia
+     * indicata, cerca tra le postazioni di quell'area.
+     *
+     * @param fascia        fascia oraria richiesta
+     * @param tipologiaArea tipologia di area, oppure {@code null}
+     * @param data          giorno di interesse
+     * @return la prima {@link Postazione} disponibile, oppure {@code null} se nessuna lo è
+     */
     public Postazione cercaPrimaPostazioneLibera(FasciaOraria fascia, String tipologiaArea, LocalDate data) {
 
         if(tipologiaArea == null){
@@ -186,9 +230,24 @@ public class SalaStudio{
         return null;
     }
 
-    public boolean isDisponibilePostazione(List<FasciaOraria> fascia, LocalDate data) {
+    /**
+     * Verifica se esiste almeno una postazione libera per <b>tutte</b> le fasce
+     * indicate nello stesso giorno, eventualmente ristretta a una tipologia di area.
+     * <p>
+     * Utile per prenotazioni su più slot: una postazione è valida solo se
+     * disponibile in ognuna delle fasce richieste.
+     *
+     * @param fascia        elenco di fasce orarie che devono essere tutte libere
+     * @param data          giorno di interesse
+     * @param tipologiaArea tipologia di area, oppure {@code null} per l'intera sala
+     * @return {@code true} se almeno una postazione è libera in tutte le fasce
+     */
+    public boolean isDisponibilePostazione(List<FasciaOraria> fascia, LocalDate data, String tipologiaArea) {
+        Area area = (tipologiaArea != null)
+                ? getArea(tipologiaArea)
+                : null;
 
-        for (Postazione p : getPostazioni(null)) {
+        for (Postazione p : getPostazioni(area)) {
             boolean postazioneDisponibile = true;
             for(FasciaOraria f : fascia) {
                 if (!p.isDisponibile(f, data)) {
@@ -196,9 +255,8 @@ public class SalaStudio{
                     break;
                 }
             }
-            if (postazioneDisponibile) { return  true; }
+            if (postazioneDisponibile) { return true; }
         }
-
         return false;
     }
 }

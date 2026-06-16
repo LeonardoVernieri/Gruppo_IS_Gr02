@@ -1,31 +1,46 @@
 package control;
-import entity.GestoreBibliotecari;
-import entity.GestoreStudenti;
+
+import control.RegistrazioneException;
 import entity.Bibliotecario;
+import entity.RegistroBibliotecari;
+import entity.RegistroStudenti;
 import entity.Studente;
-import javax.swing.*;
+
+/**
+ * Use Case Controller per l'autenticazione e la registrazione degli utenti.
+ * <p>
+ * Gestisce il login (con blocco dopo un numero massimo di tentativi falliti) e
+ * la registrazione di studenti e bibliotecari. La validazione di formato dei
+ * dati è responsabilità del boundary; qui restano le verifiche che richiedono
+ * l'accesso alla persistenza (unicità) e la creazione effettiva, segnalando i
+ * fallimenti tramite {@link RegistrazioneException}.
+ */
 public class GestoreAccesso {
+
     private static final int MAX_TENTATIVI = 3;
     private int contatore = 0;
 
+    private final RegistroStudenti gestoreStudenti = new RegistroStudenti();
+    private final RegistroBibliotecari gestoreBibliotecari = new RegistroBibliotecari();
+
     /**
      * Autentica un utente a partire dalle credenziali fornite.
+     * <p>
      * Cerca prima tra gli studenti, poi tra i bibliotecari; incrementa il
-     * contatore dei tentativi falliti e lo azzera in caso di successo.
+     * contatore dei tentativi falliti e lo azzera in caso di successo. L'esito
+     * negativo è un caso atteso del flusso e viene segnalato con {@code null}.
      *
      * @param email    email dell'utente
      * @param password password da verificare
-     * @return lo Studente o il Bibliotecario autenticato, oppure null se le
-     *         credenziali sono errate o l'accesso è bloccato
+     * @return lo {@link Studente} o il {@link Bibliotecario} autenticato, oppure
+     *         {@code null} se le credenziali sono errate o l'accesso è bloccato
      */
     public Object loginUtente(String email, String password) {
         if (contatore >= MAX_TENTATIVI)
             return null;
-        GestoreStudenti gestoreStudenti = new GestoreStudenti();
-        Studente studente = gestoreStudenti.cercaStudente(email);
+        Studente studente = gestoreStudenti.cercaStudentePerEmail(email);
         if (studente == null) {
-            GestoreBibliotecari gestoreBibliotecari = new GestoreBibliotecari();
-            Bibliotecario bibliotecario = gestoreBibliotecari.cercaBibliotecario(email);
+            Bibliotecario bibliotecario = gestoreBibliotecari.cercaBibliotecarioPerEmail(email);
             if (bibliotecario == null || !bibliotecario.getPassword().equals(password)) {
                 contatore++;
                 return null;
@@ -42,115 +57,56 @@ public class GestoreAccesso {
     }
 
     /**
-     * Indica se l'accesso è bloccato per aver raggiunto il numero massimo
-     * di tentativi di login falliti.
+     * Indica se l'accesso è bloccato per aver raggiunto il numero massimo di
+     * tentativi di login falliti.
      *
-     * @return true se i tentativi hanno raggiunto MAX_TENTATIVI
+     * @return {@code true} se i tentativi hanno raggiunto {@code MAX_TENTATIVI}
      */
-    public boolean isBloccato() {return contatore >= MAX_TENTATIVI;}
+    public boolean isBloccato() {
+        return contatore >= MAX_TENTATIVI;
+    }
 
     /**
-     * Registra un nuovo studente nel sistema. Valida i dati anagrafici,
-     * verifica l'obbligatorietà della matricola e l'unicità di email e
-     * matricola prima di procedere alla creazione.
+     * Registra un nuovo studente, verificando l'unicità di email e matricola.
+     * <p>
+     * I controlli di formato sui dati si assumono già effettuati dal boundary.
      *
-     * @param matricola matricola dello studente (obbligatoria)
-     * @param nome      nome dello studente
-     * @param cognome   cognome dello studente
-     * @param email     email dello studente (deve essere univoca)
-     * @param password  password dello studente
-     * @return true se la registrazione va a buon fine, false altrimenti
+     * @param matricola matricola dello studente
+     * @param nome      nome
+     * @param cognome   cognome
+     * @param email     email istituzionale
+     * @param password  password
+     * @throws RegistrazioneException se email o matricola sono già registrate
      */
-    public static boolean registraStudente(Long matricola, String nome, String cognome, String email, String password){
-        if (!validaDati(nome, cognome, email, password)) {
-            return false;
-        }
-        if (matricola == null) {
-            JOptionPane.showMessageDialog(null, "Inserire matricola");
-            return false;
-        }
-        GestoreStudenti gestoreStudenti = new GestoreStudenti();
-        if (gestoreStudenti.cercaStudente(email) != null) {
-            JOptionPane.showMessageDialog(null, "Email già associata ad un altro studente");
-            return false;
+    public void registraStudente(Long matricola, String nome, String cognome, String email, String password){
+        if (gestoreStudenti.cercaStudentePerEmail(email) != null) {
+            throw new RegistrazioneException("Email già associata ad un altro studente");
         }
         if (gestoreStudenti.cercaPerMatricola(matricola) != null) {
-            JOptionPane.showMessageDialog(null, "Matricola già registrata");
-            return false;
+            throw new RegistrazioneException("Matricola già registrata");
         }
-        return gestoreStudenti.creaStudente(matricola, nome, cognome, email, password);
+        gestoreStudenti.creaStudente(matricola, nome, cognome, email, password);
     }
 
     /**
-     * Registra un nuovo bibliotecario nel sistema. Valida i dati anagrafici,
-     * verifica l'obbligatorietà del codice interno e l'unicità dell'email
-     * prima di procedere alla creazione.
+     * Registra un nuovo bibliotecario, verificando l'unicità di email e codice interno.
+     * <p>
+     * I controlli di formato sui dati si assumono già effettuati dal boundary.
      *
-     * @param codiceInterno codice identificativo del bibliotecario (obbligatorio)
-     * @param nome          nome del bibliotecario
-     * @param cognome       cognome del bibliotecario
-     * @param email         email del bibliotecario (deve essere univoca)
-     * @param password      password del bibliotecario
-     * @return true se la registrazione va a buon fine, false altrimenti
+     * @param codiceInterno codice identificativo del bibliotecario
+     * @param nome          nome
+     * @param cognome       cognome
+     * @param email         email istituzionale
+     * @param password      password
+     * @throws RegistrazioneException se email o codice interno sono già registrati
      */
-    public static boolean registraBibliotecario(Long codiceInterno, String nome, String cognome, String email, String password){
-        if (!validaDati(nome, cognome, email, password)) {
-            return false;
+    public void registraBibliotecario(Long codiceInterno, String nome, String cognome, String email, String password){
+        if (gestoreBibliotecari.cercaBibliotecarioPerEmail(email) != null) {
+            throw new RegistrazioneException("Email già associata ad un altro bibliotecario");
         }
-        if (codiceInterno == null){
-            JOptionPane.showMessageDialog(null, "Codice identificativo obbligatorio.");
-            return false;
+        if (gestoreBibliotecari.cercaBibliotecarioPerCodiceInterno(codiceInterno) != null) {
+            throw new RegistrazioneException("Codice interno già registrato");
         }
-        GestoreBibliotecari gestoreBibliotecari = new GestoreBibliotecari();
-        if (gestoreBibliotecari.cercaBibliotecario(email) != null){
-            JOptionPane.showMessageDialog(null, "Email già registrata.");
-            return false;
-        }
-        return gestoreBibliotecari.creaBibliotecario(codiceInterno, nome, cognome, email, password);
-    }
-
-    /**
-     * Registra un utente generico delegando al metodo appropriato in base
-     * al ruolo specificato (studente o bibliotecario).
-     *
-     * @param ruolo    ruolo dell'utente ("STUDENTE", altrimenti bibliotecario)
-     * @param nome     nome dell'utente
-     * @param cognome  cognome dell'utente
-     * @param email    email dell'utente
-     * @param password password dell'utente
-     * @param extra    matricola (studente) o codice interno (bibliotecario)
-     * @throws Exception in caso di errore durante la registrazione
-     */
-    public void registraUtente(String ruolo, String nome, String cognome, String email, String password, Long extra)
-            throws Exception
-    {
-        if ("STUDENTE".equals(ruolo)) {registraStudente(extra, nome, cognome, email, password);}
-        else {registraBibliotecario(extra, nome, cognome, email, password);}
-    }
-
-    /**
-     * Valida i dati anagrafici comuni a studenti e bibliotecari, verificando
-     * che nome e cognome non siano vuoti e che l'email contenga il carattere "@".
-     *
-     * @param nome     nome da validare
-     * @param cognome  cognome da validare
-     * @param email    email da validare
-     * @param password password (presente per uniformità di firma, non validata)
-     * @return true se i dati sono validi, false altrimenti
-     */
-    public static boolean validaDati(String nome, String cognome, String email, String password) {
-        if (nome == null || nome.isBlank()) {
-            JOptionPane.showMessageDialog(null, "Nome obbligatorio");
-            return false;
-        }
-        if (cognome == null || cognome.isBlank()) {
-            JOptionPane.showMessageDialog(null, "Cognome obbligatorio");
-            return false;
-        }
-        if (email == null || !email.contains("@")) {
-            JOptionPane.showMessageDialog(null, "Email non valida");
-            return false;
-        }
-        return true;
+        gestoreBibliotecari.creaBibliotecario(codiceInterno, nome, cognome, email, password);
     }
 }

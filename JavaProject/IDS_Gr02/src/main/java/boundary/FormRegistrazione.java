@@ -1,11 +1,22 @@
 package boundary;
 
 import control.GestoreAccesso;
+import control.RegistrazioneException;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
+/**
+ * Form (boundary) per la registrazione di un nuovo utente.
+ * <p>
+ * Raccoglie i dati anagrafici e il ruolo (studente o bibliotecario, con il
+ * relativo identificativo: matricola o codice interno), esegue la validazione di
+ * formato e delega la creazione a {@link GestoreAccesso}. Gli errori di regola
+ * applicativa (es. unicità) sollevati dal control sono segnalati tramite
+ * {@link RegistrazioneException} e mostrati all'utente. Eredita aspetto e
+ * componenti grafici da {@link BaseForm}.
+ */
 public class FormRegistrazione extends BaseForm {
 
     private JTextField     nomeField;
@@ -17,11 +28,12 @@ public class FormRegistrazione extends BaseForm {
     private JTextField     campoAggiuntivoField;
     private JLabel         messaggioLabel;
 
-    private final FormLogin parent;
+    private GestoreAccesso gestoreAccesso;
 
     public FormRegistrazione(FormLogin parent) {
-        super( 0, 0);
-        this.parent = parent;
+        super();
+
+        gestoreAccesso = new GestoreAccesso();
 
         // ── Root ─────────────────────────────────────────────────────────────
         JPanel root = new JPanel(new GridBagLayout());
@@ -142,8 +154,13 @@ public class FormRegistrazione extends BaseForm {
         setVisible(true);
     }
 
-    // ── Logica (invariata) ────────────────────────────────────────────────────
+    // ── Logica ────────────────────────────────────────────────────────────────
 
+    /**
+     * Aggiorna l'etichetta e svuota il campo identificativo in base al ruolo
+     * selezionato (matricola per lo studente, codice identificativo per il
+     * bibliotecario).
+     */
     private void aggiornaCampoAggiuntivo() {
         String ruolo = (String) ruoloComboBox.getSelectedItem();
         if ("Studente".equals(ruolo)) {
@@ -154,28 +171,74 @@ public class FormRegistrazione extends BaseForm {
         campoAggiuntivoField.setText("");
     }
 
+    /**
+     * Raccoglie i dati, esegue la validazione di formato e delega la
+     * registrazione al control in base al ruolo.
+     * <p>
+     * L'identificativo viene interpretato in modo difensivo: se assente o non
+     * numerico resta {@code null} e il caso è gestito da {@link #validaDati}. Gli
+     * errori di regola applicativa sollevati dal control sono mostrati all'utente.
+     */
     private void eseguiRegistrazione() {
         String nome     = nomeField.getText().trim();
         String cognome  = cognomeField.getText().trim();
         String email    = emailField.getText().trim();
         String password = new String(passwordField.getPassword());
         String ruolo    = (String) ruoloComboBox.getSelectedItem();
-        Long   extra    = Long.valueOf(campoAggiuntivoField.getText().trim());
 
-        boolean esito;
-        if ("Studente".equals(ruolo)) {
-            esito = GestoreAccesso.registraStudente(extra, nome, cognome, email, password);
-            if (esito) {
+        Long extra = null;
+        try {
+            extra = Long.valueOf(campoAggiuntivoField.getText().trim());
+        } catch (NumberFormatException ex) {
+            extra = null;
+        }
+
+        if (!validaDati(nome, cognome, email, extra, ruolo)) {
+            return;
+        }
+
+        try {
+            if ("Studente".equals(ruolo)) {
+                gestoreAccesso.registraStudente(extra, nome, cognome, email, password);
                 JOptionPane.showMessageDialog(null, "Registrazione studente completata");
-                new FormLogin().setVisible(true);
-                dispose();
+            } else {
+                gestoreAccesso.registraBibliotecario(extra, nome, cognome, email, password);
+                JOptionPane.showMessageDialog(null, "Registrazione bibliotecario completata");
             }
-
-        } else {
-            esito = GestoreAccesso.registraBibliotecario(extra, nome, cognome, email, password);
-            if (esito) JOptionPane.showMessageDialog(null, "Registrazione bibliotecario completata");
             new FormLogin().setVisible(true);
             dispose();
+        } catch (RegistrazioneException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
         }
+    }
+
+    /**
+     * Valida il formato dei dati di registrazione: nome e cognome non vuoti,
+     * email contenente "@" e identificativo presente per il ruolo scelto.
+     *
+     * @return {@code true} se i dati superano i controlli di formato
+     */
+    private boolean validaDati(String nome, String cognome, String email, Long extra, String ruolo) {
+        if (nome == null || nome.isBlank()) {
+            JOptionPane.showMessageDialog(null, "Nome obbligatorio");
+            return false;
+        }
+        if (cognome == null || cognome.isBlank()) {
+            JOptionPane.showMessageDialog(null, "Cognome obbligatorio");
+            return false;
+        }
+        if (email == null || !email.contains("@")) {
+            JOptionPane.showMessageDialog(null, "Email non valida");
+            return false;
+        }
+        if (extra == null && ruolo.equals("Studente")) {
+            JOptionPane.showMessageDialog(null, "Inserire matricola");
+            return false;
+        }
+        if (extra == null && ruolo.equals("Bibliotecario")) {
+            JOptionPane.showMessageDialog(null, "Inserire codice identificativo");
+            return false;
+        }
+        return true;
     }
 }

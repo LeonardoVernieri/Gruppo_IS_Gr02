@@ -1,6 +1,8 @@
 package main;
 
 import boundary.FormSplash;
+import boundary.ServerMailEmbedded;
+
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
@@ -17,6 +19,7 @@ public class Main extends JFrame {
 
         System.out.println("Avvio di Hibernate completato.");
 
+        ServerMailEmbedded.avvia();
         SwingUtilities.invokeLater(() -> new FormSplash());
     }
 

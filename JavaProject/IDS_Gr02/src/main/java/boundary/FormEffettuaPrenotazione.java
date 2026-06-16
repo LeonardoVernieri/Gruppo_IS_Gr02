@@ -1,14 +1,24 @@
 package boundary;
 
 import control.Sessione;
-import dto.FasciaOraria;
 import control.GestorePrenotazioni;
+import dto.FasciaOraria;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+/**
+ * Form per l'effettuazione di una prenotazione su una o più fasce orarie.
+ * <p>
+ * Estende {@link FormConsultaFasceOrarie} riusandone la consultazione della
+ * disponibilità, e vi aggiunge la selezione multipla delle fasce (tramite
+ * {@code SlotButton}) e il flusso di prenotazione. Delega la logica a
+ * {@link GestorePrenotazioni}; la notifica all'utente è invocata qui, a valle
+ * dell'esito positivo, coerentemente con la collocazione del servizio di
+ * notifica nel boundary.
+ */
 public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
 
     private GestorePrenotazioni gestorePrenotazioni;
@@ -19,21 +29,19 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
     private JPanel prenotaSection;
     private RoundedButton btnPrenota;
 
-    // ═════════════════════════════════════════════════════════════════════════
+    /**
+     * Costruisce il form a partire dalla UI di consultazione ereditata,
+     * personalizzando titolo e dimensione e aggiungendo il pulsante di prenotazione.
+     */
     public FormEffettuaPrenotazione() {
-
+        super(); // il padre costruisce l'intera UI di consultazione
         gestorePrenotazioni = new GestorePrenotazioni();
 
-        super();
-        // Il costruttore padre costruisce già tutta la UI base.
-        // Qui personalizziamo titolo, dimensione e aggiungiamo la sezione area.
         setTitle("Gestore sale studio");
         setSize(660, 640);
 
-        // Aggiorna l'header fasce per indicare la selezione multipla
         fasceHeaderLabel.setText("FASCE ORARIE — SELEZIONA UNA O PIÙ");
 
-        // Aggiungo il bottone Prenota
         panelConsultaFasceOrarie.add(Box.createVerticalStrut(10));
         panelConsultaFasceOrarie.add(buildPrenotaButton());
 
@@ -45,14 +53,21 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
 
     // ── Override: aggiunge SlotButton a ogni riga ─────────────────────────────
 
+    /**
+     * Estende la riga-fascia del genitore aggiungendo un controllo di selezione
+     * ({@code SlotButton}), ma solo per le fasce con almeno un posto libero.
+     *
+     * @param fascia fascia oraria da rappresentare
+     * @param liberi posti liberi nella fascia
+     * @param totale posti complessivi di riferimento
+     * @return la riga arricchita del controllo di selezione
+     */
     @Override
     protected JPanel buildSlotRow(FasciaOraria fascia, int liberi, int totale) {
-        // Prende la riga base dal genitore
         JPanel row = super.buildSlotRow(fascia, liberi, totale);
         dateScrollPane.setMinimumSize(new Dimension(0, 68));
         dateScrollPane.setPreferredSize(new Dimension(Integer.MAX_VALUE, 68));
 
-        // Aggiunge il checkbox solo se ci sono posti disponibili
         if (liberi > 0) {
             JPanel destra = (JPanel) row.getComponent(1); // BorderLayout.EAST
             SlotButton slotBtn = new SlotButton();
@@ -66,6 +81,7 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
 
     // ── Logica selezione fasce ────────────────────────────────────────────────
 
+    /** Azzera la selezione corrente prima di delegare al genitore il cambio sala. */
     @Override
     protected void onSalaSelezionata() {
         fasceSelezionate.clear();
@@ -73,12 +89,18 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
         aggiornaComboAree();
     }
 
+    /** Azzera la selezione corrente prima di rigenerare i pulsanti data. */
     @Override
     protected void buildDateButtons() {
         fasceSelezionate.clear();
         super.buildDateButtons();
     }
 
+    /**
+     * Aggiunge o rimuove una fascia dall'insieme selezionato e aggiorna lo stato
+     * del relativo controllo, mostrando la sezione di prenotazione solo se almeno
+     * una fascia è selezionata.
+     */
     private void onFasciaToggle(FasciaOraria fascia, SlotButton slotBtn) {
         if (fasceSelezionate.contains(fascia)) {
             fasceSelezionate.remove(fascia);
@@ -92,13 +114,20 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
         repaint();
     }
 
+    /**
+     * Esegue il flusso di prenotazione sulle fasce selezionate.
+     * <p>
+     * Verifica prima se le fasce sono accorpabili in un'unica prenotazione
+     * ({@link GestorePrenotazioni#isPrenotazioneUnicaPossibile}). In caso
+     * affermativo effettua un'unica prenotazione sull'intervallo unito e, se va a
+     * buon fine, notifica l'utente. In caso negativo propone all'utente di
+     * effettuare prenotazioni separate, una per fascia. Al termine torna al menu
+     * studente.
+     */
     private void onPrenota() {
-
         String areaSel = comboArea.getSelectedIndex() == 0
                 ? null
                 : (String) comboArea.getSelectedItem();
-
-
 
         boolean esito = gestorePrenotazioni.isPrenotazioneUnicaPossibile(nomeSala, fasceSelezionate, dataSelezionata, areaSel);
 
@@ -106,6 +135,8 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
             List<FasciaOraria> fasceList = new ArrayList<>(fasceSelezionate);
             FasciaOraria fasciaUnita = new FasciaOraria(fasceList.getFirst().getOraInizio(), fasceList.getLast().getOraFine());
             if (gestorePrenotazioni.effettuaPrenotazione(nomeSala, dataSelezionata, fasciaUnita, Sessione.getInstance().getStudenteCorrente(), areaSel)) {
+                ServizioNotifiche notifiche = new ServizioNotifiche();
+                notifiche.inviaNotificaPrenotazione(Sessione.getInstance().getStudenteCorrente().getEmail(), nomeSala, dataSelezionata.toString(), fasciaUnita.toString());
                 JOptionPane.showMessageDialog(this,
                         "Prenotazione effettuata per la fascia oraria " + fasciaUnita,
                         "Conferma", JOptionPane.INFORMATION_MESSAGE);
@@ -123,7 +154,7 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
                     gestorePrenotazioni.effettuaPrenotazione(nomeSala, dataSelezionata, fascia, Sessione.getInstance().getStudenteCorrente(), areaSel);
                 }
                 JOptionPane.showMessageDialog(this,
-                        fasceSelezionate.size() + " prenotazioni effettuate per la fasce orarie " + fasceSelezionate,
+                        fasceSelezionate.size() + " prenotazioni effettuate per le fasce orarie " + fasceSelezionate,
                         "Conferma", JOptionPane.INFORMATION_MESSAGE);
             }
             new FormStudente();
@@ -131,7 +162,12 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
         }
     }
 
-
+    /**
+     * Mostra il dialogo che chiede conferma per effettuare prenotazioni separate
+     * quando le fasce non sono accorpabili.
+     *
+     * @return {@code true} se l'utente sceglie di procedere con prenotazioni separate
+     */
     private boolean mostraDialogSeparazione() {
         Object[] opzioni = {"Sì, prenota separatamente", "No, annulla"};
         int scelta = JOptionPane.showOptionDialog(
@@ -145,13 +181,12 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
                 opzioni,
                 opzioni[0]
         );
-        return scelta == 0; // 0 = primo bottone = "Sì"
+        return scelta == 0;
     }
 
-    // ── Sezione area ──────────────────────────────────────────────────────────
+    // ── Builder sezione prenotazione ──────────────────────────────────────────
 
     private JPanel buildPrenotaButton() {
-
         prenotaSection = new JPanel();
         prenotaSection.setLayout(new BoxLayout(prenotaSection, BoxLayout.Y_AXIS));
         prenotaSection.setOpaque(false);
@@ -219,7 +254,6 @@ public class FormEffettuaPrenotazione extends FormConsultaFasceOrarie {
                 g2.setColor(BLUE_BORDER);
                 g2.setStroke(new BasicStroke(1.2f));
                 g2.drawRoundRect(x, y, size, size, 8, 8);
-                // Segno di spunta
                 g2.setColor(BLUE_TEXT);
                 g2.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                 int cx = x + size / 2;
