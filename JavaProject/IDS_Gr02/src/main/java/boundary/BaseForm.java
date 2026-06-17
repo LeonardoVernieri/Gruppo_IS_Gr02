@@ -147,10 +147,6 @@ public abstract class BaseForm extends JFrame {
         private boolean hovered = false;
         private final boolean filled;
 
-        protected RoundedButton(String testo) {
-            this(testo, false);
-        }
-
         protected RoundedButton(String testo, boolean filled) {
             super(testo);
             this.filled = filled;
