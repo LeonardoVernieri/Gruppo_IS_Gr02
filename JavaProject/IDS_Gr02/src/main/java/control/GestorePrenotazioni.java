@@ -94,15 +94,17 @@ public class GestorePrenotazioni {
     /**
      * Effettua il check-in su una prenotazione, delegandone la conferma
      * all'entità (pattern State) e propagando l'aggiornamento alla persistenza.
+     * Il check-in viene bloccato se richiesto nelle due ore precedenti l'inizio
+     * della prenotazione.
      *
      * @param prenotazione prenotazione su cui effettuare il check-in
+     * @return {@code true} se il check-in è andato a buon fine,
+     *         {@code false} se la richiesta ricade nella finestra di blocco
      */
     public boolean effettuaCheckIn(Prenotazione prenotazione) {
         if (prenotazione.getInizioTempo().minusHours(2).isBefore(LocalTime.now())) {
             return false;
         }
-
-
         prenotazione.conferma();
         catalogoPrenotazioni.aggiornaPrenotazione(prenotazione);
         return true;
