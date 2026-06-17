@@ -4,6 +4,7 @@ import dto.FasciaOraria;
 import entity.*;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -96,9 +97,15 @@ public class GestorePrenotazioni {
      *
      * @param prenotazione prenotazione su cui effettuare il check-in
      */
-    public void effettuaCheckIn(Prenotazione prenotazione) {
+    public boolean effettuaCheckIn(Prenotazione prenotazione) {
+        if (prenotazione.getInizioTempo().minusHours(2).isBefore(LocalTime.now())) {
+            return false;
+        }
+
+
         prenotazione.conferma();
         catalogoPrenotazioni.aggiornaPrenotazione(prenotazione);
+        return true;
     }
 
     /**

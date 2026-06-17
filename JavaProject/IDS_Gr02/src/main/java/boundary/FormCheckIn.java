@@ -163,12 +163,18 @@ public class FormCheckIn extends BaseForm {
         int risposta = JOptionPane.showConfirmDialog(this,
                 "Confermi il check-in?", "Conferma", JOptionPane.YES_NO_OPTION);
         if (risposta == JOptionPane.YES_OPTION) {
-            gestorePrenotazioni.effettuaCheckIn(selezionata);
+           boolean esito= gestorePrenotazioni.effettuaCheckIn(selezionata);
+            if(esito==true){
             JOptionPane.showMessageDialog(this,
                     "Check-in effettuato con successo!",
                     "Successo", JOptionPane.INFORMATION_MESSAGE);
             new FormStudente().setVisible(true);
-            dispose();
+            dispose();}else if(esito==false){
+                JOptionPane.showMessageDialog(this,
+                        "Check-in non effettuato, tempo limite scaduto",
+                        "Fallito", JOptionPane.INFORMATION_MESSAGE);
+
+            }
         }
     }
 }

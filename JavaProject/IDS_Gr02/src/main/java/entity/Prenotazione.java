@@ -109,6 +109,8 @@ public class Prenotazione {
         this.inizioTempo = inizioTempo;
     }
 
+    public LocalTime getInizioTempo() {return inizioTempo;}
+
     public void setFineTempo(LocalTime fineTempo) {
         this.fineTempo = fineTempo;
     }
